@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgSquare" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#111827;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradSquare" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2dd4bf;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38bdf8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="url(#bgSquare)"/>
+  
+  <!-- Receipt -->
+  <rect x="140" y="80" width="232" height="280" rx="16" fill="#1f2937" stroke="url(#gradSquare)" stroke-width="4"/>
+  
+  <!-- Receipt lines -->
+  <path d="M170 130h172 M170 170h172 M170 210h120" stroke="url(#gradSquare)" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Magnifying glass -->
+  <circle cx="300" cy="340" r="60" fill="none" stroke="url(#gradSquare)" stroke-width="12"/>
+  <path d="M345 385l50 50" stroke="url(#gradSquare)" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- AI Sparkle -->
+  <circle cx="380" cy="120" r="8" fill="#2dd4bf"/>
+  <path d="M380 100v40 M360 120h40" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round"/>
+</svg>
+

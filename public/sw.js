@@ -1,9 +1,10 @@
-const CACHE_NAME = 'receipt-scanner-ai-cache-v2'; // Bump version to force update
+const CACHE_NAME = 'receipt-scanner-ai-cache-v3'; // Bump version to force update
 const APP_SHELL_URLS = [
   '/',
   '/index.html',
   '/index.tsx', // Cache the main script
   '/icon.svg',
+  '/icon-512.svg',
   '/manifest.json'
 ];
 

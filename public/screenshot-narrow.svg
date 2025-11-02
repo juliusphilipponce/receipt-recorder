@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844">
+  <defs>
+    <linearGradient id="bgGradMobile" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#111827;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradMobile" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2dd4bf;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38bdf8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="390" height="844" fill="url(#bgGradMobile)"/>
+  
+  <!-- Header -->
+  <text x="195" y="80" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="url(#accentGradMobile)" text-anchor="middle">
+    Receipt Scanner AI
+  </text>
+  <text x="195" y="115" font-family="Arial, sans-serif" font-size="14" fill="#9ca3af" text-anchor="middle">
+    Scan, analyze, and store your receipts
+  </text>
+  
+  <!-- Tabs -->
+  <rect x="40" y="150" width="140" height="40" rx="8" fill="url(#accentGradMobile)"/>
+  <text x="110" y="177" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">
+    Scanner
+  </text>
+  <rect x="210" y="150" width="140" height="40" rx="8" fill="#374151"/>
+  <text x="280" y="177" font-family="Arial, sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">
+    My Receipts
+  </text>
+  
+  <!-- Upload Area -->
+  <rect x="40" y="230" width="310" height="350" rx="12" fill="#1f2937" stroke="#374151" stroke-width="2" stroke-dasharray="8,4"/>
+  
+  <!-- Camera Icon -->
+  <circle cx="195" cy="360" r="40" fill="#111827"/>
+  <rect x="175" y="350" width="40" height="30" rx="4" fill="url(#accentGradMobile)"/>
+  <circle cx="195" cy="365" r="12" fill="#111827"/>
+  
+  <!-- Upload Text -->
+  <text x="195" y="440" font-family="Arial, sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">
+    Tap to upload or
+  </text>
+  <text x="195" y="465" font-family="Arial, sans-serif" font-size="16" fill="#9ca3af" text-anchor="middle">
+    take a photo
+  </text>
+  
+  <!-- Analyze Button -->
+  <rect x="70" y="620" width="250" height="50" rx="8" fill="#22c55e"/>
+  <text x="195" y="652" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#ffffff" text-anchor="middle">
+    Analyze Receipt
+  </text>
+  
+  <!-- Footer -->
+  <text x="195" y="800" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle">
+    Powered by Google Gemini &amp; Supabase
+  </text>
+</svg>
+
