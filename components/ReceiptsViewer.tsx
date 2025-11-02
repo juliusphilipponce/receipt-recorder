@@ -4,6 +4,8 @@ import { ReceiptData } from '../types';
 import Spinner from './Spinner';
 import ReceiptModal from './ReceiptModal';
 import { formatCurrency } from '../utils/formatters';
+import SearchToggle from './SearchToggle';
+import MonthDropdown from './MonthDropdown';
 
 // Define types for sorting functionality
 type SortKey = 'date' | 'merchantName' | 'total';
@@ -149,36 +151,79 @@ const ReceiptsViewer: React.FC = () => {
     return (
         <div className="w-full max-w-4xl animate-fade-in">
             {/* Filter Controls */}
-            <div className="bg-gray-800 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 border border-gray-700">
-                <div className="flex-1">
-                    <label htmlFor="month-select" className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Month</label>
-                    <select
-                        id="month-select"
-                        value={selectedMonthYear}
-                        onChange={(e) => setSelectedMonthYear(e.target.value)}
-                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base"
-                    >
-                        {availableMonths.map(month => (
-                            <option key={month} value={month}>{formatMonthYear(month)}</option>
-                        ))}
-                    </select>
+            <div className="bg-gray-800 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 border border-gray-700">
+                {/* Mobile Layout */}
+                <div className="sm:hidden">
+                    <label className="block text-xs font-medium text-gray-400 mb-1">Month</label>
+                    {/* Month dropdown + Search icon on same row */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                            <MonthDropdown
+                                availableMonths={availableMonths}
+                                selectedMonth={selectedMonthYear}
+                                onChange={setSelectedMonthYear}
+                            />
+                        </div>
+                        <SearchToggle
+                            value={searchText}
+                            onChange={setSearchText}
+                            placeholder="e.g., Coffee Shop"
+                        />
+                    </div>
                 </div>
-                <div className="flex-1">
-                    <label htmlFor="search-input" className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Search Merchant</label>
-                    <input
-                        id="search-input"
-                        type="text"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        placeholder="e.g., Coffee Shop"
-                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-500 text-sm sm:text-base"
-                    />
+
+                {/* Desktop Layout - Side by side */}
+                <div className="hidden sm:flex sm:gap-4">
+                    <div className="flex-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Month</label>
+                        <MonthDropdown
+                            availableMonths={availableMonths}
+                            selectedMonth={selectedMonthYear}
+                            onChange={setSelectedMonthYear}
+                        />
+                    </div>
+                    <div className="flex-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Search Merchant</label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                placeholder="e.g., Coffee Shop"
+                                className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 pr-8 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-500 text-sm sm:text-base"
+                            />
+                            {/* Clear button inside input */}
+                            {searchText && (
+                                <button
+                                    onClick={() => setSearchText('')}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                                    title="Clear search"
+                                    aria-label="Clear search"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-4 w-4"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* Receipts Table */}
-            <div className="overflow-x-auto bg-gray-800 rounded-lg border border-gray-700">
-                <table className="w-full text-xs sm:text-sm text-left text-gray-300">
+            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                <table className="w-full text-xs sm:text-sm text-left text-gray-300 table-fixed sm:table-auto">
                     <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
                         <tr>
                             <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3">
@@ -222,11 +267,11 @@ const ReceiptsViewer: React.FC = () => {
                                     className="border-b border-gray-700 hover:bg-gray-700/50 cursor-pointer transition-colors"
                                     aria-label={`View details for ${receipt.merchantName} on ${receipt.date}`}
                                 >
-                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-xs sm:text-sm">{receipt.date}</td>
-                                    <th scope="row" className="px-3 py-3 sm:px-6 sm:py-4 font-medium text-white whitespace-nowrap text-xs sm:text-sm">
+                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-xs sm:text-sm whitespace-nowrap">{receipt.date}</td>
+                                    <th scope="row" className="px-3 py-3 sm:px-6 sm:py-4 font-medium text-white text-xs sm:text-sm max-w-[120px] sm:max-w-none truncate">
                                         {receipt.merchantName}
                                     </th>
-                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-right font-mono text-xs sm:text-sm">{formatCurrency(receipt.total)}</td>
+                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-right font-mono text-xs sm:text-sm whitespace-nowrap">{formatCurrency(receipt.total)}</td>
                                 </tr>
                             ))
                         ) : (
