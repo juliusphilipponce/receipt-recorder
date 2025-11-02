@@ -154,11 +154,11 @@ const App: React.FC = () => {
       )}
 
       {imageFiles.length > 0 && !showResults && (
-        <div className="flex space-x-4 mt-6">
+        <div className="flex justify-center mt-4 sm:mt-6 w-full">
             <button
               onClick={handleAnalyze}
               disabled={isLoading}
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
             >
               {`Analyze ${imageFiles.length} Receipt${imageFiles.length > 1 ? 's' : ''}`}
             </button>
@@ -171,16 +171,16 @@ const App: React.FC = () => {
         <div className="w-full max-w-4xl">
           <ResultsList results={results} />
           {!isLoading && (
-               <div className="text-center mt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
+               <div className="text-center mt-4 sm:mt-6 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full">
                   <button
                       onClick={handleClear}
-                      className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105 duration-300"
+                      className="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
                     >
                       Scan More
                   </button>
                    <button
                       onClick={() => setActiveTab('myreceipts')}
-                      className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105 duration-300"
+                      className="w-full sm:w-auto bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
                     >
                       View All Receipts
                   </button>
@@ -196,25 +196,25 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-4 sm:p-6 lg:p-8">
-      <header className="w-full max-w-4xl mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex-1"></div>
-          <div className="flex-1 text-center">
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-cyan-500">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-3 sm:p-6 lg:p-8">
+      <header className="w-full max-w-4xl mb-4 sm:mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 mb-3 sm:mb-4">
+          <div className="hidden sm:block sm:flex-1"></div>
+          <div className="flex-1 text-center w-full sm:w-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-cyan-500">
               Receipt Scanner AI
             </h1>
           </div>
-          <div className="flex-1 flex justify-end">
+          <div className="w-full sm:w-auto sm:flex-1 flex justify-center sm:justify-end">
             <button
               onClick={handleSignOut}
-              className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+              className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 sm:px-4 rounded-lg transition-colors duration-200 text-sm sm:text-base"
             >
               Sign Out
             </button>
           </div>
         </div>
-        <p className="text-center text-lg text-gray-400">Scan, analyze, and store your receipts with ease.</p>
+        <p className="text-center text-base sm:text-lg text-gray-400">Scan, analyze, and store your receipts with ease.</p>
       </header>
       
       <Tabs activeTab={activeTab} onTabChange={setActiveTab} />

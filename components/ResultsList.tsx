@@ -35,20 +35,20 @@ const ResultItem: React.FC<{ result: ProcessResult }> = ({ result }) => {
     const { file, status, data, error } = result;
 
     return (
-        <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+        <div className="bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-700 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
             <div className="flex-grow w-full">
                 <div className="flex justify-between items-center mb-2">
-                    <p className="text-sm font-medium text-gray-300 truncate w-4/6" title={file.name}>{file.name}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-300 truncate w-4/6" title={file.name}>{file.name}</p>
                     <StatusBadge status={status} />
                 </div>
                 {data ? (
-                    <div className="text-sm">
-                        <p className="font-bold text-teal-300">{data.merchantName || 'Unknown Merchant'}</p>
-                        <p className="text-gray-400">{data.date || 'Unknown Date'}</p>
-                        <p className="font-mono font-semibold text-lg text-white mt-1">{formatCurrency(data.total || 0)}</p>
+                    <div className="text-xs sm:text-sm">
+                        <p className="font-bold text-teal-300 text-sm sm:text-base">{data.merchantName || 'Unknown Merchant'}</p>
+                        <p className="text-gray-400 text-xs sm:text-sm">{data.date || 'Unknown Date'}</p>
+                        <p className="font-mono font-semibold text-base sm:text-lg text-white mt-1">{formatCurrency(data.total || 0)}</p>
                     </div>
                 ) : (
-                   status !== 'pending' && status !== 'analyzing' && <p className="text-sm text-gray-400 italic">No details could be extracted.</p>
+                   status !== 'pending' && status !== 'analyzing' && <p className="text-xs sm:text-sm text-gray-400 italic">No details could be extracted.</p>
                 )}
                 {error && <p className="text-xs text-red-400 mt-2"><strong>Error:</strong> {error}</p>}
                 {status === 'not_configured' && <p className="text-xs text-sky-400 mt-2">Supabase not configured. Receipt was analyzed but not saved.</p>}
@@ -60,8 +60,8 @@ const ResultItem: React.FC<{ result: ProcessResult }> = ({ result }) => {
 
 const ResultsList: React.FC<{ results: ProcessResult[] }> = ({ results }) => {
     return (
-        <div className="w-full max-w-4xl space-y-4 animate-fade-in">
-             <h2 className="text-2xl font-bold text-center mb-4">Processing Results</h2>
+        <div className="w-full max-w-4xl space-y-3 sm:space-y-4 animate-fade-in">
+             <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 sm:mb-4">Processing Results</h2>
             {results.map((result, index) => (
                 <ResultItem key={`${result.file.name}-${index}`} result={result} />
             ))}

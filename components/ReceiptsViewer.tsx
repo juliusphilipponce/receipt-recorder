@@ -128,20 +128,20 @@ const ReceiptsViewer: React.FC = () => {
     }
 
     if (error) {
-        return <div className="text-center text-red-400 bg-red-900/50 p-6 rounded-lg">
-            <h3 className="text-xl font-bold mb-2">Failed to load receipts</h3>
-            <p>{error}</p>
+        return <div className="text-center text-red-400 bg-red-900/50 p-4 sm:p-6 rounded-lg">
+            <h3 className="text-lg sm:text-xl font-bold mb-2">Failed to load receipts</h3>
+            <p className="text-sm sm:text-base">{error}</p>
         </div>;
     }
 
     if (allReceipts.length === 0) {
         return (
-             <div className="text-center text-gray-400 bg-gray-800 p-12 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-16 w-16 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+             <div className="text-center text-gray-400 bg-gray-800 p-8 sm:p-12 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="text-2xl font-bold mt-4">No receipts found</h3>
-                <p className="mt-2">Scan your first receipt to see it here.</p>
+                <h3 className="text-xl sm:text-2xl font-bold mt-3 sm:mt-4">No receipts found</h3>
+                <p className="mt-2 text-sm sm:text-base">Scan your first receipt to see it here.</p>
             </div>
         )
     }
@@ -149,14 +149,14 @@ const ReceiptsViewer: React.FC = () => {
     return (
         <div className="w-full max-w-4xl animate-fade-in">
             {/* Filter Controls */}
-            <div className="bg-gray-800 p-4 rounded-lg mb-6 flex flex-col sm:flex-row gap-4 border border-gray-700">
+            <div className="bg-gray-800 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 border border-gray-700">
                 <div className="flex-1">
-                    <label htmlFor="month-select" className="block text-sm font-medium text-gray-400 mb-1">Month</label>
+                    <label htmlFor="month-select" className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Month</label>
                     <select
                         id="month-select"
                         value={selectedMonthYear}
                         onChange={(e) => setSelectedMonthYear(e.target.value)}
-                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-teal-500 focus:border-teal-500"
+                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base"
                     >
                         {availableMonths.map(month => (
                             <option key={month} value={month}>{formatMonthYear(month)}</option>
@@ -164,47 +164,47 @@ const ReceiptsViewer: React.FC = () => {
                     </select>
                 </div>
                 <div className="flex-1">
-                    <label htmlFor="search-input" className="block text-sm font-medium text-gray-400 mb-1">Search Merchant</label>
+                    <label htmlFor="search-input" className="block text-xs sm:text-sm font-medium text-gray-400 mb-1">Search Merchant</label>
                     <input
                         id="search-input"
                         type="text"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
                         placeholder="e.g., Coffee Shop"
-                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-500"
+                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-500 text-sm sm:text-base"
                     />
                 </div>
             </div>
 
             {/* Receipts Table */}
             <div className="overflow-x-auto bg-gray-800 rounded-lg border border-gray-700">
-                <table className="w-full text-sm text-left text-gray-300">
+                <table className="w-full text-xs sm:text-sm text-left text-gray-300">
                     <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
                         <tr>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3">
                                 <button
                                     onClick={() => handleSort('date')}
-                                    className={`flex items-center gap-2 transition-colors ${sortKey === 'date' ? 'text-teal-300' : 'hover:text-white'}`}
+                                    className={`flex items-center gap-1 sm:gap-2 transition-colors text-xs ${sortKey === 'date' ? 'text-teal-300' : 'hover:text-white'}`}
                                     aria-label={`Sort by Date in ${sortKey === 'date' && sortDirection === 'asc' ? 'descending' : 'ascending'} order`}
                                 >
                                     Date
                                     {sortKey === 'date' && <span className="text-xs">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
                                 </button>
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3">
                                 <button
                                     onClick={() => handleSort('merchantName')}
-                                    className={`flex items-center gap-2 transition-colors ${sortKey === 'merchantName' ? 'text-teal-300' : 'hover:text-white'}`}
+                                    className={`flex items-center gap-1 sm:gap-2 transition-colors text-xs ${sortKey === 'merchantName' ? 'text-teal-300' : 'hover:text-white'}`}
                                     aria-label={`Sort by Merchant in ${sortKey === 'merchantName' && sortDirection === 'asc' ? 'descending' : 'ascending'} order`}
                                 >
                                     Merchant
                                     {sortKey === 'merchantName' && <span className="text-xs">{sortDirection === 'asc' ? '▲' : '▼'}</span>}
                                 </button>
                             </th>
-                            <th scope="col" className="px-6 py-3 text-right">
+                            <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3 text-right">
                                 <button
                                     onClick={() => handleSort('total')}
-                                    className={`flex items-center gap-2 ml-auto transition-colors ${sortKey === 'total' ? 'text-teal-300' : 'hover:text-white'}`}
+                                    className={`flex items-center gap-1 sm:gap-2 ml-auto transition-colors text-xs ${sortKey === 'total' ? 'text-teal-300' : 'hover:text-white'}`}
                                     aria-label={`Sort by Total in ${sortKey === 'total' && sortDirection === 'asc' ? 'descending' : 'ascending'} order`}
                                 >
                                     Total
@@ -222,17 +222,17 @@ const ReceiptsViewer: React.FC = () => {
                                     className="border-b border-gray-700 hover:bg-gray-700/50 cursor-pointer transition-colors"
                                     aria-label={`View details for ${receipt.merchantName} on ${receipt.date}`}
                                 >
-                                    <td className="px-6 py-4">{receipt.date}</td>
-                                    <th scope="row" className="px-6 py-4 font-medium text-white whitespace-nowrap">
+                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-xs sm:text-sm">{receipt.date}</td>
+                                    <th scope="row" className="px-3 py-3 sm:px-6 sm:py-4 font-medium text-white whitespace-nowrap text-xs sm:text-sm">
                                         {receipt.merchantName}
                                     </th>
-                                    <td className="px-6 py-4 text-right font-mono">{formatCurrency(receipt.total)}</td>
+                                    <td className="px-3 py-3 sm:px-6 sm:py-4 text-right font-mono text-xs sm:text-sm">{formatCurrency(receipt.total)}</td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={3} className="text-center py-8 px-4 text-gray-400">
-                                   {searchText 
+                                <td colSpan={3} className="text-center py-6 sm:py-8 px-3 sm:px-4 text-gray-400 text-xs sm:text-sm">
+                                   {searchText
                                      ? `No receipts match your search for "${searchText}" in ${formatMonthYear(selectedMonthYear)}.`
                                      : `No receipts found for ${formatMonthYear(selectedMonthYear)}.`
                                    }
@@ -243,10 +243,10 @@ const ReceiptsViewer: React.FC = () => {
                     {sortedAndFilteredReceipts.length > 0 && (
                         <tfoot className="bg-gray-700/50 font-bold">
                             <tr>
-                                <td colSpan={2} className="px-6 py-3 text-right text-lg text-gray-300 uppercase tracking-wider">
+                                <td colSpan={2} className="px-3 py-2 sm:px-6 sm:py-3 text-right text-sm sm:text-lg text-gray-300 uppercase tracking-wider">
                                     Monthly Total
                                 </td>
-                                <td className="px-6 py-3 text-right font-mono text-lg text-teal-300">
+                                <td className="px-3 py-2 sm:px-6 sm:py-3 text-right font-mono text-sm sm:text-lg text-teal-300">
                                     {formatCurrency(monthlyTotal)}
                                 </td>
                             </tr>

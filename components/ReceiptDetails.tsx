@@ -119,9 +119,9 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
 
   return (
     <>
-      <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 animate-fade-in">
-        <div className="border-b-2 border-dashed border-gray-600 pb-4 mb-4">
-          <h2 className="text-3xl font-bold text-teal-300 text-center tracking-wider">
+      <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 animate-fade-in">
+        <div className="border-b-2 border-dashed border-gray-600 pb-3 sm:pb-4 mb-3 sm:mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-teal-300 text-center tracking-wider">
             {data.merchantName || 'Merchant Unknown'}
           </h2>
 
@@ -129,12 +129,12 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
           <div className="mt-2 flex items-center justify-center gap-2">
             {!isEditing ? (
               <>
-                <p className="text-center text-gray-400 text-sm">
+                <p className="text-center text-gray-400 text-xs sm:text-sm">
                   {data.date || 'Date Unknown'}
                 </p>
                 <button
                   onClick={handleEditClick}
-                  className="p-1 text-gray-400 hover:text-teal-300 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 rounded"
+                  className="p-1 text-gray-400 hover:text-teal-300 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label="Edit date"
                   title="Edit date"
                 >
@@ -155,7 +155,7 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
                 </button>
               </>
             ) : (
-              <div className="flex flex-col items-center gap-2 w-full max-w-xs">
+              <div className="flex flex-col items-center gap-2 w-full max-w-xs px-2">
                 <input
                   ref={dateInputRef}
                   type="date"
@@ -163,20 +163,20 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
                   max={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setEditedDate(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 w-full"
+                  className="bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 w-full min-h-[44px]"
                   aria-label="Edit receipt date"
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={handleCancelEdit}
-                    className="px-3 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="px-4 py-2 text-xs sm:text-sm bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 min-h-[44px]"
                     aria-label="Cancel editing"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSaveClick}
-                    className="px-3 py-1 text-xs bg-teal-600 text-white rounded hover:bg-teal-700 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="px-4 py-2 text-xs sm:text-sm bg-teal-600 text-white rounded hover:bg-teal-700 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px]"
                     aria-label="Save date"
                   >
                     Save
@@ -201,21 +201,21 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
           )}
         </div>
 
-        <div className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2">
+        <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 max-h-60 overflow-y-auto pr-2">
           {data.items && data.items.length > 0 ? (
             data.items.map((item, index) => (
-              <div key={index} className="flex justify-between items-center text-gray-300">
-                <span className="flex-1 truncate pr-4">{item.name}</span>
-                <span className="font-mono">{formatCurrency(item.price)}</span>
+              <div key={index} className="flex justify-between items-center text-gray-300 text-xs sm:text-sm">
+                <span className="flex-1 truncate pr-3 sm:pr-4">{item.name}</span>
+                <span className="font-mono text-xs sm:text-sm">{formatCurrency(item.price)}</span>
               </div>
             ))
           ) : (
-            <p className="text-gray-400 text-center py-4">No items were extracted.</p>
+            <p className="text-gray-400 text-center py-3 sm:py-4 text-xs sm:text-sm">No items were extracted.</p>
           )}
         </div>
 
-        <div className="border-t-2 border-dashed border-gray-600 pt-4 mt-6">
-          <div className="flex justify-between items-center text-2xl font-bold text-white">
+        <div className="border-t-2 border-dashed border-gray-600 pt-3 sm:pt-4 mt-4 sm:mt-6">
+          <div className="flex justify-between items-center text-lg sm:text-xl md:text-2xl font-bold text-white">
             <span>TOTAL</span>
             <span className="text-teal-300">{formatCurrency(data.total)}</span>
           </div>

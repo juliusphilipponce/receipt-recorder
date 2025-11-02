@@ -54,7 +54,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4 animate-fade-in-fast"
+      className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-3 sm:p-4 animate-fade-in-fast"
       onClick={!isLoading ? onCancel : undefined}
       role="dialog"
       aria-modal="true"
@@ -62,14 +62,14 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       aria-describedby="confirm-dialog-message"
     >
       <div
-        className="bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-700"
+        className="bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-4 sm:p-6 border border-gray-700"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Icon */}
-        <div className="flex items-center justify-center w-12 h-12 mx-auto bg-yellow-500/20 rounded-full mb-4">
+        <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mx-auto bg-yellow-500/20 rounded-full mb-3 sm:mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-yellow-500"
+            className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -87,7 +87,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {/* Title */}
         <h3
           id="confirm-dialog-title"
-          className="text-xl font-bold text-white text-center mb-2"
+          className="text-lg sm:text-xl font-bold text-white text-center mb-2"
         >
           {title}
         </h3>
@@ -95,17 +95,17 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {/* Message */}
         <p
           id="confirm-dialog-message"
-          className="text-gray-300 text-center mb-6"
+          className="text-sm sm:text-base text-gray-300 text-center mb-4 sm:mb-6"
         >
           {message}
         </p>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end">
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 text-sm sm:text-base min-h-[44px]"
             aria-label={cancelLabel}
           >
             {cancelLabel}
@@ -114,7 +114,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             ref={confirmButtonRef}
             onClick={onConfirm}
             disabled={isLoading}
-            className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-gray-800 min-w-[100px]"
+            className="w-full sm:w-auto px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-gray-800 min-w-[100px] text-sm sm:text-base min-h-[44px]"
             aria-label={confirmLabel}
           >
             {isLoading ? (
