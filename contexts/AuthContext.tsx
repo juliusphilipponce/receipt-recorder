@@ -79,10 +79,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { error: { message: 'Supabase not configured' } };
     }
 
+    // Use the current site URL for redirect (works for both localhost and production)
+    const redirectUrl = `${window.location.origin}/`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: redirectUrl,
       },
     });
 
