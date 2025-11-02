@@ -32,20 +32,20 @@ const ReceiptsViewer: React.FC = () => {
     const [sortKey, setSortKey] = useState<SortKey>('date');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc'); // Default to newest first
 
-    useEffect(() => {
-        const fetchReceipts = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-                const data = await getReceipts();
-                setAllReceipts(data);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const fetchReceipts = async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const data = await getReceipts();
+            setAllReceipts(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchReceipts();
     }, []);
 
@@ -256,9 +256,10 @@ const ReceiptsViewer: React.FC = () => {
             </div>
 
             {selectedReceipt && (
-                <ReceiptModal 
-                    receipt={selectedReceipt} 
-                    onClose={() => setSelectedReceipt(null)} 
+                <ReceiptModal
+                    receipt={selectedReceipt}
+                    onClose={() => setSelectedReceipt(null)}
+                    onUpdate={fetchReceipts}
                 />
             )}
         </div>

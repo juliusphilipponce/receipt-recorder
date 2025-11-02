@@ -56,14 +56,11 @@ export const saveReceipt = async (receiptData: ReceiptData): Promise<SaveResult>
     if (error) {
         // 23505 is the PostgreSQL error code for a unique_violation
         if (error.code === '23505') {
-            console.warn('Duplicate receipt detected based on unique_hash.');
             return { isDuplicate: true, error: null };
         }
-        console.error('Error saving receipt to Supabase:', error);
         return { isDuplicate: false, error };
     }
 
-    console.log('Receipt saved successfully:', data);
     return { isDuplicate: false, error: null };
 };
 
@@ -83,7 +80,6 @@ export const getReceipts = async (): Promise<ReceiptData[]> => {
         .order('created_at', { ascending: false });
 
     if (error) {
-        console.error('Error fetching receipts:', error);
         throw new Error('Failed to fetch receipts from the database.');
     }
 
@@ -94,4 +90,25 @@ export const getReceipts = async (): Promise<ReceiptData[]> => {
         total: item.total,
         items: item.items
     })) as ReceiptData[];
+};
+
+/**
+ * Updates the date of a specific receipt in the database.
+ * @param receiptId - The ID of the receipt to update.
+ * @param newDate - The new date value in YYYY-MM-DD format.
+ * @returns A promise that resolves when the update is complete.
+ */
+export const updateReceiptDate = async (receiptId: number, newDate: string): Promise<void> => {
+    if (!supabase) {
+        throw new Error("Supabase not configured.");
+    }
+
+    const { error } = await supabase
+        .from('receipts')
+        .update({ date: newDate })
+        .eq('id', receiptId);
+
+    if (error) {
+        throw new Error('Failed to update receipt date.');
+    }
 };
