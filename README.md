@@ -58,17 +58,26 @@ View your app in AI Studio: https://ai.studio/apps/drive/1tiBJTsXY2wSbokqsAsSxFy
 5. **Open your browser**
    - Navigate to `http://localhost:3000`
 
-## 🔐 Security
+## 🔐 Security & Authentication
 
 This project follows security best practices:
 
+- ✅ **Authentication Required** - Only authorized users can access the app
+- ✅ **Single User Access** - Configured for personal use with one Gmail account
 - ✅ **No hardcoded credentials** - All API keys are stored in environment variables
 - ✅ **Git protection** - `.env` files are excluded from version control
 - ✅ **Build-time injection** - Environment variables are injected during build
 - ✅ **Security headers** - Netlify configuration includes security headers
-- ✅ **Template files** - `.env.example` provides a safe template
+- ✅ **Row Level Security** - Database access controlled by Supabase RLS policies
 
 **Important:** Never commit `.env` or `.env.local` files to Git!
+
+### Setting Up Authentication
+
+See [docs/AUTHENTICATION_SETUP.md](docs/AUTHENTICATION_SETUP.md) for detailed instructions on:
+- Creating your user account in Supabase
+- Configuring Row Level Security policies
+- Testing your authentication setup
 
 ## 📦 Deployment
 
