@@ -1,0 +1,7 @@
+{
+  "name": "Receipt Scanner AI",
+  "description": "Upload or take a photo of a receipt to have Gemini AI analyze it and extract key details like merchant, date, total, and itemized list.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
