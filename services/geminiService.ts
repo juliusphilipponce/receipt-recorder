@@ -27,7 +27,16 @@ export const analyzeReceipt = async (imageFile: File): Promise<ReceiptData> => {
     const imagePart = await fileToGenerativePart(imageFile);
     
     const textPart = {
-      text: `Analyze the provided receipt image. Extract the merchant name, transaction date, total amount, and a list of all items with their corresponding prices. Ensure the output is in the specified JSON format. If a value is not clear, make a reasonable guess or leave it as an empty string or 0 for numbers.`
+      text: `Analyze the provided receipt image. Extract the merchant name, transaction date, total amount, and a list of all items with their corresponding prices.
+
+IMPORTANT for date extraction:
+- The receipt is from the Philippines, which typically uses DD/MM/YYYY format (day/month/year)
+- If you see a date like "05/11/2025", interpret it as 5th of November 2025, NOT May 11th
+- Convert the date to YYYY-MM-DD format (e.g., "05/11/2025" becomes "2025-11-05")
+- If the date format is ambiguous, prefer DD/MM/YYYY interpretation
+- The date should never be in the future - if your interpretation results in a future date, reconsider the format
+
+Ensure the output is in the specified JSON format. If a value is not clear, make a reasonable guess or leave it as an empty string or 0 for numbers.`
     };
 
     const response = await ai.models.generateContent({
@@ -44,7 +53,7 @@ export const analyzeReceipt = async (imageFile: File): Promise<ReceiptData> => {
             },
             date: {
               type: Type.STRING,
-              description: "The date of the transaction in YYYY-MM-DD format."
+              description: "The date of the transaction in YYYY-MM-DD format. Receipt dates are typically in DD/MM/YYYY format (e.g., 05/11/2025 = November 5, 2025)."
             },
             total: {
               type: Type.NUMBER,
