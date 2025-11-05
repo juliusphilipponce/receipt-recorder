@@ -51,7 +51,9 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
     }
 
     // Validate date is not in the future
-    const selectedDate = new Date(editedDate);
+    // Parse the date string (YYYY-MM-DD) as local date to avoid timezone issues
+    const [year, month, day] = editedDate.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day); // month is 0-indexed
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
 
