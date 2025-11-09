@@ -6,6 +6,8 @@ import ResultsList from './components/ResultsList';
 import Tabs from './components/Tabs';
 import ReceiptsViewer from './components/ReceiptsViewer';
 import Login from './components/Login';
+import DateToggle from './components/DateToggle';
+import ConfirmDialog from './components/ConfirmDialog';
 import { analyzeReceipt } from './services/geminiService';
 import { saveReceipt } from './services/receiptService';
 import { ProcessResult } from './types';
@@ -19,6 +21,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [processingIndex, setProcessingIndex] = useState(0);
   const [receiptsVersion, setReceiptsVersion] = useState(0); // Used to trigger re-fetch in ReceiptsViewer
+  const [useTodayDate, setUseTodayDate] = useState<boolean>(false);
+  const [showDateConfirmDialog, setShowDateConfirmDialog] = useState<boolean>(false);
 
   // Register Service Worker for PWA - must be called before any conditional returns
   useEffect(() => {
@@ -43,6 +47,7 @@ const App: React.FC = () => {
     setResults([]);
     setIsLoading(false);
     setProcessingIndex(0);
+    setUseTodayDate(false); // Reset toggle when clearing
   }, []);
 
   // Show loading spinner while checking authentication
@@ -94,7 +99,27 @@ const App: React.FC = () => {
     setImageFiles(currentFiles => [...currentFiles, ...newFiles]);
   };
 
+  // Helper function to format today's date in 'MMMM D YYYY' format
+  const getTodayDateFormatted = () => {
+    const today = new Date();
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return today.toLocaleDateString('en-US', options);
+  };
+
   const handleAnalyze = async () => {
+    if (imageFiles.length === 0) return;
+
+    // If useTodayDate is enabled, show confirmation dialog first
+    if (useTodayDate) {
+      setShowDateConfirmDialog(true);
+      return;
+    }
+
+    // Otherwise, proceed with normal analysis
+    await performAnalysis();
+  };
+
+  const performAnalysis = async () => {
     if (imageFiles.length === 0) return;
     
     setIsLoading(true);
@@ -117,7 +142,7 @@ const App: React.FC = () => {
 
         try {
             updateResult('analyzing');
-            const data = await analyzeReceipt(file);
+            const data = await analyzeReceipt(file, useTodayDate);
 
             updateResult('saving', data);
             const { isDuplicate, error: saveError, notConfigured } = await saveReceipt(data);
@@ -144,7 +169,17 @@ const App: React.FC = () => {
     }
     setIsLoading(false);
   };
-  
+
+  const handleDateConfirmDialogConfirm = async () => {
+    setShowDateConfirmDialog(false);
+    await performAnalysis();
+  };
+
+  const handleDateConfirmDialogCancel = () => {
+    setShowDateConfirmDialog(false);
+    setUseTodayDate(false); // Turn toggle back OFF when user cancels
+  };
+
   const showResults = results.length > 0;
 
   const renderScannerTab = () => (
@@ -154,19 +189,26 @@ const App: React.FC = () => {
       )}
 
       {imageFiles.length > 0 && !showResults && (
-        <div className="flex justify-center mt-4 sm:mt-6 w-full">
-            <button
-              onClick={handleAnalyze}
-              disabled={isLoading}
-              className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
-            >
-              {`Analyze ${imageFiles.length} Receipt${imageFiles.length > 1 ? 's' : ''}`}
-            </button>
-        </div>
+        <>
+          <DateToggle
+            isEnabled={useTodayDate}
+            onChange={setUseTodayDate}
+            disabled={isLoading}
+          />
+          <div className="flex justify-center mt-4 sm:mt-6 w-full">
+              <button
+                onClick={handleAnalyze}
+                disabled={isLoading}
+                className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
+              >
+                {`Analyze ${imageFiles.length} Receipt${imageFiles.length > 1 ? 's' : ''}`}
+              </button>
+          </div>
+        </>
       )}
 
       {isLoading && <Spinner text={`Processing ${processingIndex + 1} of ${imageFiles.length}...`} />}
-      
+
       {showResults && (
         <div className="w-full max-w-4xl">
           <ResultsList results={results} />
@@ -188,6 +230,17 @@ const App: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Date Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDateConfirmDialog}
+        title="Confirm Date"
+        message={`The receipt date will be saved as ${getTodayDateFormatted()}. Do you want to proceed?`}
+        confirmLabel="Proceed"
+        cancelLabel="Cancel"
+        onConfirm={handleDateConfirmDialogConfirm}
+        onCancel={handleDateConfirmDialogCancel}
+      />
     </>
   );
 
