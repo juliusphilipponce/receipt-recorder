@@ -48,7 +48,7 @@ const SearchToggle: React.FC<SearchToggleProps> = ({
                     onClick={handleToggle}
                     className={`p-2 rounded-md transition-all duration-300 ${
                         isExpanded
-                            ? 'bg-teal-500/20 text-teal-400'
+                            ? 'bg-[#00d4ff]/20 text-[#00d4ff]'
                             : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'
                     }`}
                     title={isExpanded ? "Close search" : "Search merchant"}
@@ -103,7 +103,7 @@ const SearchToggle: React.FC<SearchToggleProps> = ({
                             value={value}
                             onChange={(e) => onChange(e.target.value)}
                             placeholder={placeholder}
-                            className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 pr-8 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-500 text-sm sm:text-base"
+                            className="w-full bg-gray-700 border border-gray-600 focus:border-[#00d4ff] focus:outline focus:outline-2 focus:outline-[#00d4ff] focus:outline-offset-2 text-white rounded-md p-2 pr-8 placeholder-gray-500 text-sm sm:text-base"
                         />
                         {/* Clear button inside input */}
                         {value && (

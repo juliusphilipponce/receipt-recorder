@@ -291,7 +291,7 @@ const ReceiptsViewer: React.FC = () => {
                                 <td colSpan={2} className="px-3 py-2 sm:px-6 sm:py-3 text-right text-sm sm:text-lg text-gray-300 uppercase tracking-wider">
                                     Monthly Total
                                 </td>
-                                <td className="px-3 py-2 sm:px-6 sm:py-3 text-right font-mono text-sm sm:text-lg text-teal-300">
+                                <td className="px-3 py-2 sm:px-6 sm:py-3 text-right font-mono text-sm sm:text-lg text-[#00d4ff]">
                                     {formatCurrency(monthlyTotal)}
                                 </td>
                             </tr>

@@ -25,10 +25,10 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a1929] text-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <header className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-cyan-500">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#00d4ff] to-[#0ea5e9]">
             Receipt Scanner AI
           </h1>
           <p className="mt-2 text-lg text-gray-400">

@@ -114,7 +114,7 @@ const MonthDropdown: React.FC<MonthDropdownProps> = ({
             <button
                 type="button"
                 onClick={handleToggle}
-                className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 focus:ring-teal-500 focus:border-teal-500 text-sm sm:text-base flex items-center justify-between hover:bg-gray-600 transition-colors"
+                className="w-full bg-gray-700 border border-gray-600 focus:border-[#00d4ff] text-white rounded-md p-2 text-sm sm:text-base flex items-center justify-between hover:bg-gray-600 transition-colors"
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
             >
@@ -145,7 +145,9 @@ const MonthDropdown: React.FC<MonthDropdownProps> = ({
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search month or year..."
-                                className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 pl-8 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-500 text-sm"
+                                className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 pl-8 placeholder-gray-500 text-sm"
+                                onFocus={(e) => e.currentTarget.style.borderColor = '#00d4ff'}
+                                onBlur={(e) => e.currentTarget.style.borderColor = '#4b5563'}
                             />
                             <svg 
                                 xmlns="http://www.w3.org/2000/svg" 
@@ -179,8 +181,8 @@ const MonthDropdown: React.FC<MonthDropdownProps> = ({
                                             type="button"
                                             onClick={() => handleSelect(month)}
                                             className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 transition-colors ${
-                                                month === selectedMonth 
-                                                    ? 'bg-teal-500/20 text-teal-300 font-medium' 
+                                                month === selectedMonth
+                                                    ? 'font-medium bg-[#00d4ff]/20 text-[#00d4ff]'
                                                     : 'text-gray-300'
                                             }`}
                                             role="option"
@@ -189,14 +191,14 @@ const MonthDropdown: React.FC<MonthDropdownProps> = ({
                                             <div className="flex items-center justify-between">
                                                 <span>{getMonthName(month)}</span>
                                                 {month === selectedMonth && (
-                                                    <svg 
-                                                        xmlns="http://www.w3.org/2000/svg" 
-                                                        className="h-4 w-4 text-teal-400"
-                                                        viewBox="0 0 24 24" 
-                                                        fill="none" 
-                                                        stroke="currentColor" 
-                                                        strokeWidth="2" 
-                                                        strokeLinecap="round" 
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-4 w-4 text-[#00d4ff]"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
                                                         strokeLinejoin="round"
                                                     >
                                                         <polyline points="20 6 9 17 4 12"></polyline>

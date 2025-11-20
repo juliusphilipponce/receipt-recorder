@@ -123,7 +123,7 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
     <>
       <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 animate-fade-in">
         <div className="border-b-2 border-dashed border-gray-600 pb-3 sm:pb-4 mb-3 sm:mb-4">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-teal-300 text-center tracking-wider">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center tracking-wider text-[#00d4ff]">
             {data.merchantName || 'Merchant Unknown'}
           </h2>
 
@@ -136,7 +136,7 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
                 </p>
                 <button
                   onClick={handleEditClick}
-                  className="p-1 text-gray-400 hover:text-teal-300 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
+                  className="p-1 text-gray-400 hover:text-[#00d4ff] focus:text-[#00d4ff] focus:outline focus:outline-2 focus:outline-[#00d4ff] focus:outline-offset-2 transition-colors rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label="Edit date"
                   title="Edit date"
                 >
@@ -165,7 +165,16 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
                   max={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setEditedDate(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 w-full min-h-[44px]"
+                  className="bg-gray-700 border border-gray-600 text-white rounded-md px-3 py-2 text-sm w-full min-h-[44px]"
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#00d4ff';
+                    e.currentTarget.style.outline = '2px solid #00d4ff';
+                    e.currentTarget.style.outlineOffset = '2px';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#4b5563';
+                    e.currentTarget.style.outline = 'none';
+                  }}
                   aria-label="Edit receipt date"
                 />
                 <div className="flex gap-2">
@@ -178,7 +187,7 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
                   </button>
                   <button
                     onClick={handleSaveClick}
-                    className="px-4 py-2 text-xs sm:text-sm bg-teal-600 text-white rounded hover:bg-teal-700 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px]"
+                    className="px-4 py-2 text-xs sm:text-sm bg-[#00d4ff] hover:bg-[#0ea5e9] focus:outline focus:outline-2 focus:outline-[#00d4ff] focus:outline-offset-2 text-white rounded transition-colors min-h-[44px]"
                     aria-label="Save date"
                   >
                     Save
@@ -197,7 +206,7 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
 
           {/* Success Message */}
           {successMessage && (
-            <div className="mt-2 text-center text-teal-300 text-sm bg-teal-900/30 py-1 px-3 rounded animate-fade-in">
+            <div className="mt-2 text-center text-sm py-1 px-3 rounded animate-fade-in text-[#00d4ff] bg-[#00d4ff]/20">
               {successMessage}
             </div>
           )}
@@ -219,7 +228,7 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
         <div className="border-t-2 border-dashed border-gray-600 pt-3 sm:pt-4 mt-4 sm:mt-6">
           <div className="flex justify-between items-center text-lg sm:text-xl md:text-2xl font-bold text-white">
             <span>TOTAL</span>
-            <span className="text-teal-300">{formatCurrency(data.total)}</span>
+            <span className="text-[#00d4ff]">{formatCurrency(data.total)}</span>
           </div>
         </div>
       </div>

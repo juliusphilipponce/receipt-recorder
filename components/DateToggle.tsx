@@ -27,9 +27,8 @@ const DateToggle: React.FC<DateToggleProps> = ({ isEnabled, onChange, disabled =
           <div
             className={`
               w-11 h-6 rounded-full transition-colors duration-300
-              ${isEnabled ? 'bg-teal-500' : 'bg-gray-600'}
+              ${isEnabled ? 'bg-[#00d4ff]' : 'bg-gray-600'}
               ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              peer-focus:ring-2 peer-focus:ring-teal-500 peer-focus:ring-offset-2 peer-focus:ring-offset-gray-900
             `}
           ></div>
           <div

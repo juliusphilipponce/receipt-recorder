@@ -53,7 +53,7 @@ const App: React.FC = () => {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a1929] text-white flex items-center justify-center">
         <Spinner text="Loading..." />
       </div>
     );
@@ -249,19 +249,19 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-3 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#0a1929] text-white flex flex-col items-center p-3 sm:p-6 lg:p-8">
       <header className="w-full max-w-4xl mb-4 sm:mb-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 mb-3 sm:mb-4">
           <div className="hidden sm:block sm:flex-1"></div>
           <div className="flex-1 text-center w-full sm:w-auto">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-cyan-500">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#00d4ff] to-[#0ea5e9]">
               Receipt Scanner AI
             </h1>
           </div>
           <div className="w-full sm:w-auto sm:flex-1 flex justify-center sm:justify-end">
             <button
               onClick={handleSignOut}
-              className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 sm:px-4 rounded-lg transition-colors duration-200 text-sm sm:text-base"
+              className="bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white font-medium py-2 px-4 sm:px-4 rounded-lg transition-colors duration-200 text-sm sm:text-base"
             >
               Sign Out
             </button>
