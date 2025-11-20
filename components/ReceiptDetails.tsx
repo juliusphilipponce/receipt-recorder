@@ -228,7 +228,7 @@ const ReceiptDetails: React.FC<ReceiptDetailsProps> = ({ data, onUpdate }) => {
         <div className="border-t-2 border-dashed border-gray-600 pt-3 sm:pt-4 mt-4 sm:mt-6">
           <div className="flex justify-between items-center text-lg sm:text-xl md:text-2xl font-bold text-white">
             <span>TOTAL</span>
-            <span className="text-[#00d4ff]">{formatCurrency(data.total)}</span>
+            <span className="text-[#0ea5e9]">{formatCurrency(data.total)}</span>
           </div>
         </div>
       </div>

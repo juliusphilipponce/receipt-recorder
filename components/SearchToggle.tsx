@@ -48,7 +48,7 @@ const SearchToggle: React.FC<SearchToggleProps> = ({
                     onClick={handleToggle}
                     className={`p-2 rounded-md transition-all duration-300 ${
                         isExpanded
-                            ? 'bg-[#00d4ff]/20 text-[#00d4ff]'
+                            ? 'bg-[#0ea5e9]/20 text-[#0ea5e9]'
                             : 'bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white'
                     }`}
                     title={isExpanded ? "Close search" : "Search merchant"}
@@ -89,7 +89,7 @@ const SearchToggle: React.FC<SearchToggleProps> = ({
 
                 {/* Active filter indicator when collapsed */}
                 {!isExpanded && value && (
-                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-teal-400 rounded-full"></span>
+                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-[#0ea5e9] rounded-full"></span>
                 )}
             </div>
 
@@ -103,7 +103,7 @@ const SearchToggle: React.FC<SearchToggleProps> = ({
                             value={value}
                             onChange={(e) => onChange(e.target.value)}
                             placeholder={placeholder}
-                            className="w-full bg-gray-700 border border-gray-600 focus:border-[#00d4ff] focus:outline focus:outline-2 focus:outline-[#00d4ff] focus:outline-offset-2 text-white rounded-md p-2 pr-8 placeholder-gray-500 text-sm sm:text-base"
+                            className="w-full bg-gray-700 border border-gray-600 focus:border-[#0ea5e9] focus:outline focus:outline-2 focus:outline-[#0ea5e9] focus:outline-offset-2 text-white rounded-md p-2 pr-8 placeholder-gray-500 text-sm sm:text-base"
                         />
                         {/* Clear button inside input */}
                         {value && (

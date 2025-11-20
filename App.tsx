@@ -76,7 +76,7 @@ const App: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold text-white mb-4">Access Denied</h2>
           <p className="text-gray-300 mb-2">
-            Your account <span className="font-semibold text-teal-400">{user.email}</span> is not authorized to access this app.
+            Your account <span className="font-semibold text-[#0ea5e9]">{user.email}</span> is not authorized to access this app.
           </p>
           <p className="text-gray-400 text-sm mb-6">
             This is a personal app. Please contact the owner if you believe this is an error.
@@ -222,7 +222,7 @@ const App: React.FC = () => {
                   </button>
                    <button
                       onClick={() => setActiveTab('myreceipts')}
-                      className="w-full sm:w-auto bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
+                      className="w-full sm:w-auto bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
                     >
                       View All Receipts
                   </button>

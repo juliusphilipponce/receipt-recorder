@@ -190,7 +190,7 @@ const ReceiptsViewer: React.FC = () => {
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 placeholder="e.g., Coffee Shop"
-                                className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 pr-8 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-500 text-sm sm:text-base"
+                                className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 pr-8 focus:ring-[#0ea5e9] focus:border-[#0ea5e9] placeholder-gray-500 text-sm sm:text-base"
                             />
                             {/* Clear button inside input */}
                             {searchText && (
@@ -229,7 +229,7 @@ const ReceiptsViewer: React.FC = () => {
                             <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3">
                                 <button
                                     onClick={() => handleSort('date')}
-                                    className={`flex items-center gap-1 sm:gap-2 transition-colors text-xs ${sortKey === 'date' ? 'text-teal-300' : 'hover:text-white'}`}
+                                    className={`flex items-center gap-1 sm:gap-2 transition-colors text-xs ${sortKey === 'date' ? 'text-[#0ea5e9]' : 'hover:text-white'}`}
                                     aria-label={`Sort by Date in ${sortKey === 'date' && sortDirection === 'asc' ? 'descending' : 'ascending'} order`}
                                 >
                                     Date
@@ -239,7 +239,7 @@ const ReceiptsViewer: React.FC = () => {
                             <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3">
                                 <button
                                     onClick={() => handleSort('merchantName')}
-                                    className={`flex items-center gap-1 sm:gap-2 transition-colors text-xs ${sortKey === 'merchantName' ? 'text-teal-300' : 'hover:text-white'}`}
+                                    className={`flex items-center gap-1 sm:gap-2 transition-colors text-xs ${sortKey === 'merchantName' ? 'text-[#0ea5e9]' : 'hover:text-white'}`}
                                     aria-label={`Sort by Merchant in ${sortKey === 'merchantName' && sortDirection === 'asc' ? 'descending' : 'ascending'} order`}
                                 >
                                     Merchant
@@ -249,7 +249,7 @@ const ReceiptsViewer: React.FC = () => {
                             <th scope="col" className="px-3 py-2 sm:px-6 sm:py-3 text-right">
                                 <button
                                     onClick={() => handleSort('total')}
-                                    className={`flex items-center gap-1 sm:gap-2 ml-auto transition-colors text-xs ${sortKey === 'total' ? 'text-teal-300' : 'hover:text-white'}`}
+                                    className={`flex items-center gap-1 sm:gap-2 ml-auto transition-colors text-xs ${sortKey === 'total' ? 'text-[#0ea5e9]' : 'hover:text-white'}`}
                                     aria-label={`Sort by Total in ${sortKey === 'total' && sortDirection === 'asc' ? 'descending' : 'ascending'} order`}
                                 >
                                     Total

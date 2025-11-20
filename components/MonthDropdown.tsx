@@ -146,7 +146,7 @@ const MonthDropdown: React.FC<MonthDropdownProps> = ({
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Search month or year..."
                                 className="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-2 pl-8 placeholder-gray-500 text-sm"
-                                onFocus={(e) => e.currentTarget.style.borderColor = '#00d4ff'}
+                                onFocus={(e) => e.currentTarget.style.borderColor = '#0ea5e9'}
                                 onBlur={(e) => e.currentTarget.style.borderColor = '#4b5563'}
                             />
                             <svg 
@@ -182,7 +182,7 @@ const MonthDropdown: React.FC<MonthDropdownProps> = ({
                                             onClick={() => handleSelect(month)}
                                             className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 transition-colors ${
                                                 month === selectedMonth
-                                                    ? 'font-medium bg-[#00d4ff]/20 text-[#00d4ff]'
+                                                    ? 'font-medium bg-[#0ea5e9]/20 text-[#0ea5e9]'
                                                     : 'text-gray-300'
                                             }`}
                                             role="option"
@@ -193,7 +193,7 @@ const MonthDropdown: React.FC<MonthDropdownProps> = ({
                                                 {month === selectedMonth && (
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-4 w-4 text-[#00d4ff]"
+                                                        className="h-4 w-4 text-[#0ea5e9]"
                                                         viewBox="0 0 24 24"
                                                         fill="none"
                                                         stroke="currentColor"

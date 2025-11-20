@@ -43,7 +43,7 @@ const ResultItem: React.FC<{ result: ProcessResult }> = ({ result }) => {
                 </div>
                 {data ? (
                     <div className="text-xs sm:text-sm">
-                        <p className="font-bold text-teal-300 text-sm sm:text-base">{data.merchantName || 'Unknown Merchant'}</p>
+                        <p className="font-bold text-[#0ea5e9] text-sm sm:text-base">{data.merchantName || 'Unknown Merchant'}</p>
                         <p className="text-gray-400 text-xs sm:text-sm">{data.date || 'Unknown Date'}</p>
                         <p className="font-mono font-semibold text-base sm:text-lg text-white mt-1">{formatCurrency(data.total || 0)}</p>
                     </div>

@@ -114,7 +114,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             ref={confirmButtonRef}
             onClick={onConfirm}
             disabled={isLoading}
-            className="w-full sm:w-auto px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-gray-800 min-w-[100px] text-sm sm:text-base min-h-[44px]"
+            className="w-full sm:w-auto px-4 py-2 bg-[#0ea5e9] text-white rounded-lg hover:bg-[#0284c7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:ring-offset-2 focus:ring-offset-gray-800 min-w-[100px] text-sm sm:text-base min-h-[44px]"
             aria-label={confirmLabel}
           >
             {isLoading ? (
