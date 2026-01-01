@@ -73,11 +73,11 @@ export const ReceiptConfirmationModal: React.FC<ReceiptConfirmationModalProps> =
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 overflow-y-auto p-6">
-                        <div className="grid md:grid-cols-2 gap-6">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                             {/* Left Column - Image Preview */}
                             <div className="space-y-4">
-                                <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-700">
+                                <div className="bg-gray-900/50 rounded-xl p-3 sm:p-4 border border-gray-700">
                                     <h3 className="text-lg font-semibold text-white mb-3">Receipt Image</h3>
                                     {imagePreview ? (
                                         <img
@@ -98,7 +98,7 @@ export const ReceiptConfirmationModal: React.FC<ReceiptConfirmationModalProps> =
                             </div>
 
                             {/* Right Column - Form Fields */}
-                            <div className="space-y-4">
+                            <div className="space-y-3 sm:space-y-4 pr-1">
                                 {/* Date */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -158,19 +158,19 @@ export const ReceiptConfirmationModal: React.FC<ReceiptConfirmationModalProps> =
 
                                 {/* Items List */}
                                 <div>
-                                    <div className="flex justify-between items-center mb-2">
+                                    <div className="flex justify-between items-center mb-3">
                                         <label className="block text-sm font-medium text-gray-300">
                                             Items
                                         </label>
                                         <button
                                             type="button"
                                             onClick={addItem}
-                                            className="text-sky-400 hover:text-sky-300 text-sm font-medium"
+                                            className="px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-400 hover:text-sky-300 rounded-lg text-sm font-medium transition-colors border border-sky-500/30"
                                         >
                                             + Add Item
                                         </button>
                                     </div>
-                                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                                         {editedData.items.map((item, index) => (
                                             <div key={index} className="flex gap-2">
                                                 <input
@@ -178,7 +178,7 @@ export const ReceiptConfirmationModal: React.FC<ReceiptConfirmationModalProps> =
                                                     value={item.name}
                                                     onChange={(e) => updateItem(index, 'name', e.target.value)}
                                                     placeholder="Item name"
-                                                    className="flex-1 px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                                                    className="flex-1 min-w-0 px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                                                 />
                                                 <input
                                                     type="number"
@@ -186,12 +186,12 @@ export const ReceiptConfirmationModal: React.FC<ReceiptConfirmationModalProps> =
                                                     value={item.price}
                                                     onChange={(e) => updateItem(index, 'price', e.target.value)}
                                                     placeholder="Price"
-                                                    className="w-24 px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                                                    className="w-20 sm:w-24 px-2 sm:px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => removeItem(index)}
-                                                    className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors"
+                                                    className="shrink-0 w-9 h-9 flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors text-xl"
                                                 >
                                                     ×
                                                 </button>
