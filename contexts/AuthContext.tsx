@@ -54,12 +54,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      checkAuthorization(session?.user?.email);
-      setLoading(false);
-    });
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        checkAuthorization(session?.user?.email);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error getting session:', error);
+        setLoading(false);
+      }
+    };
+
+    initAuth();
 
     // Listen for auth changes
     const {

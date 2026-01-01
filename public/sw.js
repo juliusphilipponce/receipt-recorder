@@ -1,4 +1,4 @@
-const CACHE_NAME = 'receipt-scanner-ai-cache-v3'; // Bump version to force update
+const CACHE_NAME = 'receipt-scanner-ai-cache-v4'; // Bump version to force update
 const APP_SHELL_URLS = [
   '/',
   '/index.html',
@@ -53,7 +53,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For all other requests (CSS, JS, images), use a cache-first strategy.
+  // For CSS and JS files, use network-first strategy to always get latest version
+  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('.tsx')) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          // Clone and cache the response
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            if (networkResponse && networkResponse.ok) {
+              cache.put(request, responseToCache);
+            }
+          });
+          return networkResponse;
+        })
+        .catch(() => caches.match(request)) // Fallback to cache if offline
+    );
+    return;
+  }
+
+  // For all other requests (images, fonts, etc.), use cache-first strategy
   event.respondWith(
     caches.match(request)
       .then((cachedResponse) => {
@@ -61,21 +80,21 @@ self.addEventListener('fetch', (event) => {
         if (cachedResponse) {
           return cachedResponse;
         }
-        
+
         // If not in cache, fetch from network
         return fetch(request).then((networkResponse) => {
           // We must clone the response to use it in the cache and to return it to the browser.
           const responseToCache = networkResponse.clone();
-          
+
           caches.open(CACHE_NAME).then((cache) => {
-            // Only cache valid responses. 
+            // Only cache valid responses.
             // This will cache successful (2xx) same-origin and CORS responses,
             // as well as opaque responses from CDNs, which are essential for offline functionality.
             if (networkResponse && (networkResponse.ok || networkResponse.type === 'opaque')) {
               cache.put(request, responseToCache);
             }
           });
-          
+
           return networkResponse;
         });
       })

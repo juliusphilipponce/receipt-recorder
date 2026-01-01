@@ -38,17 +38,28 @@ const App: React.FC = () => {
 
   // Register Service Worker for PWA - must be called before any conditional returns
   useEffect(() => {
-    // We attach this to the window's `load` event to ensure the page is fully loaded
-    // and the document is in a stable state, preventing registration errors.
-    if ('serviceWorker' in navigator) {
+    // Only register service worker in production to avoid caching issues during development
+    const isProduction = import.meta.env.PROD;
+
+    if ('serviceWorker' in navigator && isProduction) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
           .then(registration => {
             console.log('Service Worker registered with scope:', registration.scope);
+            // Force update check on page load
+            registration.update();
           })
           .catch(error => {
             console.error('Service Worker registration failed:', error);
           });
+      });
+    } else if ('serviceWorker' in navigator && !isProduction) {
+      // In development, unregister any existing service workers to prevent caching issues
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => {
+          registration.unregister();
+          console.log('Service Worker unregistered for development mode');
+        });
       });
     }
   }, []);
