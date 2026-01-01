@@ -57,23 +57,16 @@ class GoogleSheetsService {
                     this.spreadsheetId = envSheetId;
                     console.log(`✅ Using spreadsheet from env: ${envSheetId}`);
                     return envSheetId;
-                } else {
-                    console.warn(`⚠️ Env spreadsheet not accessible (${response.status} ${response.statusText}), checking localStorage`);
                 }
             } catch (error) {
-                console.warn('⚠️ Error accessing env spreadsheet:', error);
-                console.log('Falling back to localStorage...');
+                // Silently fall back to localStorage
             }
-        } else {
-            console.log('ℹ️ No spreadsheet ID in environment variable, checking localStorage...');
         }
 
         // Priority 2: Check localStorage for existing spreadsheet ID
         const storedId = localStorage.getItem('googleSheetsId');
-        console.log('📋 localStorage googleSheetsId:', storedId || '(not set)');
 
         if (storedId) {
-            console.log('✅ Found spreadsheet ID in localStorage, verifying access...');
             // Verify the spreadsheet still exists
             try {
                 const response = await fetch(
@@ -87,23 +80,17 @@ class GoogleSheetsService {
 
                 if (response.ok) {
                     this.spreadsheetId = storedId;
-                    console.log(`✅ Using existing spreadsheet: ${storedId}`);
+                    console.log(`📊 Using existing spreadsheet: ${storedId}`);
                     return storedId;
                 } else {
-                    console.warn(`⚠️ Stored spreadsheet not accessible (${response.status} ${response.statusText}), will create new one`);
                     localStorage.removeItem('googleSheetsId');
                 }
             } catch (error) {
-                console.warn('⚠️ Error accessing stored spreadsheet:', error);
-                console.log('Removing invalid ID from localStorage');
                 localStorage.removeItem('googleSheetsId');
             }
-        } else {
-            console.log('ℹ️ No spreadsheet ID in localStorage');
         }
 
         // Priority 3: Create new spreadsheet
-        console.log('📝 Creating new spreadsheet...');
         const createResponse = await fetch(SHEETS_API_BASE, {
             method: 'POST',
             headers: {
@@ -134,8 +121,8 @@ class GoogleSheetsService {
         // Store in localStorage
         localStorage.setItem('googleSheetsId', this.spreadsheetId);
 
-        console.log(`✅ Created new spreadsheet: ${SPREADSHEET_TITLE} (${this.spreadsheetId})`);
-        console.log(`💡 To use this spreadsheet everywhere, add to .env: VITE_GOOGLE_SHEETS_ID=${this.spreadsheetId}`);
+        console.log(`📊 Created new spreadsheet: ${SPREADSHEET_TITLE} (${this.spreadsheetId})`);
+        console.log(`💡 To reuse everywhere: VITE_GOOGLE_SHEETS_ID=${this.spreadsheetId}`);
 
         // Add headers to the new spreadsheet
         await this.addHeaders(accessToken, this.spreadsheetId);
