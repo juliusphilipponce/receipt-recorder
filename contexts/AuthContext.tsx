@@ -102,8 +102,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     if (!supabase) return;
-    await supabase.auth.signOut();
-    setIsAuthorized(false);
+    try {
+      // Sign out with scope: 'local' to avoid redirect issues
+      await supabase.auth.signOut({ scope: 'local' });
+      setIsAuthorized(false);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Even if sign out fails on server, clear local state
+      setUser(null);
+      setSession(null);
+      setIsAuthorized(false);
+    }
   };
 
   const value = {
