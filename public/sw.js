@@ -1,4 +1,8 @@
-const CACHE_NAME = 'receipt-scanner-ai-cache-v4'; // Bump version to force update
+const CACHE_NAME = 'receipt-scanner-ai-cache-v5'; // Bump version to force update
+
+// Detect if we're in development mode (localhost)
+const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
+
 const APP_SHELL_URLS = [
   '/',
   '/index.html',
@@ -9,6 +13,13 @@ const APP_SHELL_URLS = [
 ];
 
 self.addEventListener('install', (event) => {
+  // In development, skip caching during install to avoid stale content
+  if (isDevelopment) {
+    console.log('Service Worker: Development mode - skipping cache on install');
+    self.skipWaiting();
+    return;
+  }
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -43,7 +54,23 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.hostname.includes('supabase.co')) {
     return;
   }
-  
+
+  // In development mode, always use network-first for everything to avoid caching issues
+  if (isDevelopment) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        // Only fallback to cache for navigation requests
+        if (request.mode === 'navigate') {
+          return caches.match('/index.html');
+        }
+        return new Response('Network error', { status: 408 });
+      })
+    );
+    return;
+  }
+
+  // PRODUCTION MODE STRATEGIES BELOW:
+
   // For navigation requests, use a network-first strategy to get the latest HTML.
   if (request.mode === 'navigate') {
     event.respondWith(
