@@ -199,6 +199,13 @@ class GoogleSheetsService {
 
         if (!appendResponse.ok) {
             const errorText = await appendResponse.text();
+            console.error('❌ Sheets append failed:', {
+                status: appendResponse.status,
+                statusText: appendResponse.statusText,
+                error: errorText,
+                spreadsheetId,
+                rowData
+            });
             throw new Error(`Failed to append to spreadsheet: ${appendResponse.statusText} - ${errorText}`);
         }
 
