@@ -38,13 +38,15 @@
       "src": "/screenshot-narrow.svg",
       "sizes": "540x720",
       "type": "image/svg+xml",
-      "form_factor": "narrow"
+      "form_factor": "narrow",
+      "label": "Receipt Scanner on mobile"
     },
     {
       "src": "/screenshot-wide.svg",
       "sizes": "1280x720",
       "type": "image/svg+xml",
-      "form_factor": "wide"
+      "form_factor": "wide",
+      "label": "Receipt Scanner on desktop"
     }
   ]
 }
