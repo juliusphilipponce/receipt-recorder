@@ -8,9 +8,13 @@ import ReceiptsViewer from './components/ReceiptsViewer';
 import Login from './components/Login';
 import DateToggle from './components/DateToggle';
 import ConfirmDialog from './components/ConfirmDialog';
+import { ReceiptConfirmationModal } from './components/ReceiptConfirmationModal';
 import { analyzeReceipt } from './services/geminiService';
 import { saveReceipt } from './services/receiptService';
-import { ProcessResult } from './types';
+import { googleAuthService } from './services/googleAuthService';
+import { googleDriveService } from './services/googleDriveService';
+import { googleSheetsService } from './services/googleSheetsService';
+import { ProcessResult, ReceiptData } from './types';
 import { useAuth } from './contexts/AuthContext';
 
 const App: React.FC = () => {
@@ -24,6 +28,14 @@ const App: React.FC = () => {
   const [useTodayDate, setUseTodayDate] = useState<boolean>(false);
   const [showDateConfirmDialog, setShowDateConfirmDialog] = useState<boolean>(false);
 
+  // Version 2.0: Confirmation Modal State
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [pendingReceiptData, setPendingReceiptData] = useState<ReceiptData | null>(null);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [googleAuthInitialized, setGoogleAuthInitialized] = useState<boolean>(false);
+
   // Register Service Worker for PWA - must be called before any conditional returns
   useEffect(() => {
     // We attach this to the window's `load` event to ensure the page is fully loaded
@@ -31,14 +43,27 @@ const App: React.FC = () => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('Service Worker registered with scope:', registration.scope);
-            })
-            .catch(error => {
-                console.error('Service Worker registration failed:', error);
-            });
+          .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Service Worker registration failed:', error);
+          });
       });
     }
+  }, []);
+
+  // Initialize Google Auth Service
+  useEffect(() => {
+    googleAuthService.initialize()
+      .then(() => {
+        setGoogleAuthInitialized(true);
+        console.log('✅ Google Auth initialized');
+      })
+      .catch((error) => {
+        console.warn('⚠️ Google Auth initialization failed:', error);
+        // App will continue to work without Google integration
+      });
   }, []);
 
   // All callbacks must be defined before conditional returns
@@ -121,53 +146,179 @@ const App: React.FC = () => {
 
   const performAnalysis = async () => {
     if (imageFiles.length === 0) return;
-    
+
     setIsLoading(true);
     setProcessingIndex(0);
     const initialResults: ProcessResult[] = imageFiles.map(file => ({ file, status: 'pending' }));
     setResults(initialResults);
-    let hasSaved = false;
 
-    for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i];
-        setProcessingIndex(i);
+    // Start processing the first receipt
+    processCurrentReceipt(0);
+  };
 
-        const updateResult = (status: ProcessResult['status'], data?: ProcessResult['data'], error?: string) => {
-            setResults(currentResults => {
-                const newResults = [...currentResults];
-                newResults[i] = { ...newResults[i], status, data, error };
-                return newResults;
-            });
-        };
+  // Process a single receipt at the given index
+  const processCurrentReceipt = async (index: number) => {
+    if (index >= imageFiles.length) {
+      setIsLoading(false);
+      return;
+    }
 
+    const file = imageFiles[index];
+    setProcessingIndex(index);
+
+    const updateResult = (status: ProcessResult['status'], data?: ProcessResult['data'], error?: string) => {
+      setResults(currentResults => {
+        const newResults = [...currentResults];
+        newResults[index] = { ...newResults[index], status, data, error };
+        return newResults;
+      });
+    };
+
+    try {
+      // Analyze receipt with Gemini
+      updateResult('analyzing');
+      const data = await analyzeReceipt(file, useTodayDate);
+
+      // Create image preview URL
+      const imagePreview = URL.createObjectURL(file);
+      console.log('📸 Created image preview URL:', imagePreview);
+      console.log('📄 File details:', { name: file.name, type: file.type, size: file.size });
+
+      // Store pending data and show confirmation modal
+      setPendingReceiptData(data);
+      setPendingImageFile(file);
+      setPendingImagePreview(imagePreview);
+      setShowConfirmModal(true);
+      setIsLoading(false); // Pause loading while waiting for user confirmation
+
+      // The actual save will happen in handleConfirmSave
+      // Processing will continue when user confirms or cancels
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
+      updateResult('error', undefined, errorMessage);
+
+      // Continue with next receipt on error
+      if (index + 1 < imageFiles.length) {
+        setTimeout(() => processCurrentReceipt(index + 1), 100);
+      } else {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // Version 2.0: Handle confirmed save with Google integration
+  const handleConfirmSave = async (editedData: ReceiptData) => {
+    setIsSaving(true);
+
+    const currentIndex = processingIndex;
+    const updateResult = (status: ProcessResult['status'], data?: ProcessResult['data'], error?: string) => {
+      setResults(currentResults => {
+        const newResults = [...currentResults];
+        newResults[currentIndex] = { ...newResults[currentIndex], status, data, error };
+        return newResults;
+      });
+    };
+
+    try {
+      updateResult('saving', editedData);
+
+      let driveFileId: string | undefined;
+      let imageUrl: string | undefined;
+
+      // Step 1: Upload to Google Drive (if authenticated)
+      if (googleAuthInitialized && pendingImageFile) {
         try {
-            updateResult('analyzing');
-            const data = await analyzeReceipt(file, useTodayDate);
-
-            updateResult('saving', data);
-            const { isDuplicate, error: saveError, notConfigured } = await saveReceipt(data);
-            
-            if (notConfigured) {
-                updateResult('not_configured', data);
-            } else if (isDuplicate) {
-                updateResult('duplicate', data);
-            } else if (saveError) {
-                updateResult('error', data, 'Failed to save to database.');
-            } else {
-                updateResult('saved', data);
-                hasSaved = true;
-            }
-
-        } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
-            updateResult('error', undefined, errorMessage);
+          const uploadResult = await googleDriveService.uploadImage(
+            pendingImageFile,
+            editedData.merchantName,
+            editedData.date
+          );
+          driveFileId = uploadResult.fileId;
+          imageUrl = uploadResult.webViewLink;
+          console.log('✅ Uploaded to Google Drive');
+        } catch (driveError) {
+          console.warn('⚠️ Google Drive upload failed:', driveError);
+          // Continue without Drive link
         }
-    }
+      }
 
-    if (hasSaved) {
-        setReceiptsVersion(v => v + 1); // Increment version to trigger re-fetch
+      // Step 2: Add to Google Sheets (if authenticated)
+      if (googleAuthInitialized) {
+        try {
+          await googleSheetsService.addReceipt(editedData, imageUrl);
+          console.log('✅ Added to Google Sheets');
+        } catch (sheetsError) {
+          console.warn('⚠️ Google Sheets logging failed:', sheetsError);
+          // Continue without Sheets entry
+        }
+      }
+
+      // Step 3: Save to Supabase with Google Drive info
+      const dataWithGoogleInfo = {
+        ...editedData,
+        driveFileId,
+        imageUrl
+      };
+
+      const { isDuplicate, error: saveError, notConfigured } = await saveReceipt(dataWithGoogleInfo);
+
+      if (notConfigured) {
+        updateResult('not_configured', dataWithGoogleInfo);
+      } else if (isDuplicate) {
+        updateResult('duplicate', dataWithGoogleInfo);
+      } else if (saveError) {
+        updateResult('error', dataWithGoogleInfo, 'Failed to save to database.');
+      } else {
+        updateResult('saved', dataWithGoogleInfo);
+        setReceiptsVersion(v => v + 1); // Trigger re-fetch
+      }
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
+      updateResult('error', editedData, errorMessage);
+    } finally {
+      setIsSaving(false);
+      setShowConfirmModal(false);
+      setPendingReceiptData(null);
+      setPendingImageFile(null);
+      if (pendingImagePreview) {
+        URL.revokeObjectURL(pendingImagePreview);
+      }
+      setPendingImagePreview(null);
+
+      // Continue with next image if there are more
+      if (processingIndex + 1 < imageFiles.length) {
+        setIsLoading(true);
+        // Process next receipt
+        setTimeout(() => processCurrentReceipt(processingIndex + 1), 100);
+      }
     }
-    setIsLoading(false);
+  };
+
+  // Handle modal cancel
+  const handleCancelConfirmation = () => {
+    setShowConfirmModal(false);
+    setPendingReceiptData(null);
+    setPendingImageFile(null);
+    if (pendingImagePreview) {
+      URL.revokeObjectURL(pendingImagePreview);
+    }
+    setPendingImagePreview(null);
+
+    // Mark current as cancelled and continue with next
+    const currentIndex = processingIndex;
+    setResults(currentResults => {
+      const newResults = [...currentResults];
+      newResults[currentIndex] = { ...newResults[currentIndex], status: 'error', error: 'Cancelled by user' };
+      return newResults;
+    });
+
+    if (processingIndex + 1 < imageFiles.length) {
+      setIsLoading(true);
+      // Process next receipt
+      setTimeout(() => processCurrentReceipt(processingIndex + 1), 100);
+    }
   };
 
   const handleDateConfirmDialogConfirm = async () => {
@@ -185,7 +336,7 @@ const App: React.FC = () => {
   const renderScannerTab = () => (
     <>
       {!showResults && (
-          <ImageUploader onImageSelect={handleImageSelect} onClear={handleClear} isProcessing={isLoading}/>
+        <ImageUploader onImageSelect={handleImageSelect} onClear={handleClear} isProcessing={isLoading} />
       )}
 
       {imageFiles.length > 0 && !showResults && (
@@ -196,13 +347,13 @@ const App: React.FC = () => {
             disabled={isLoading}
           />
           <div className="flex justify-center mt-4 sm:mt-6 w-full">
-              <button
-                onClick={handleAnalyze}
-                disabled={isLoading}
-                className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
-              >
-                {`Analyze ${imageFiles.length} Receipt${imageFiles.length > 1 ? 's' : ''}`}
-              </button>
+            <button
+              onClick={handleAnalyze}
+              disabled={isLoading}
+              className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
+            >
+              {`Analyze ${imageFiles.length} Receipt${imageFiles.length > 1 ? 's' : ''}`}
+            </button>
           </div>
         </>
       )}
@@ -213,20 +364,20 @@ const App: React.FC = () => {
         <div className="w-full max-w-4xl">
           <ResultsList results={results} />
           {!isLoading && (
-               <div className="text-center mt-4 sm:mt-6 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full">
-                  <button
-                      onClick={handleClear}
-                      className="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
-                    >
-                      Scan More
-                  </button>
-                   <button
-                      onClick={() => setActiveTab('myreceipts')}
-                      className="w-full sm:w-auto bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
-                    >
-                      View All Receipts
-                  </button>
-              </div>
+            <div className="text-center mt-4 sm:mt-6 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full">
+              <button
+                onClick={handleClear}
+                className="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
+              >
+                Scan More
+              </button>
+              <button
+                onClick={() => setActiveTab('myreceipts')}
+                className="w-full sm:w-auto bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
+              >
+                View All Receipts
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -240,6 +391,16 @@ const App: React.FC = () => {
         cancelLabel="Cancel"
         onConfirm={handleDateConfirmDialogConfirm}
         onCancel={handleDateConfirmDialogCancel}
+      />
+
+      {/* Version 2.0: Receipt Confirmation Modal */}
+      <ReceiptConfirmationModal
+        isOpen={showConfirmModal}
+        receiptData={pendingReceiptData}
+        imagePreview={pendingImagePreview}
+        onConfirm={handleConfirmSave}
+        onCancel={handleCancelConfirmation}
+        isLoading={isSaving}
       />
     </>
   );
@@ -269,16 +430,16 @@ const App: React.FC = () => {
         </div>
         <p className="text-center text-base sm:text-lg text-gray-400">Scan, analyze, and store your receipts with ease.</p>
       </header>
-      
+
       <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className="w-full flex flex-col items-center">
         {activeTab === 'scanner' && renderScannerTab()}
         {activeTab === 'myreceipts' && <ReceiptsViewer key={receiptsVersion} />}
       </main>
-      
+
       <footer className="w-full text-center text-gray-600 mt-auto pt-8">
-          <p>© 2025 JPPonce</p>
+        <p>© 2025 JPPonce</p>
       </footer>
     </div>
   );

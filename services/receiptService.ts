@@ -25,9 +25,9 @@ const createReceiptHash = (data: ReceiptData): string => {
 };
 
 interface SaveResult {
-  isDuplicate: boolean;
-  error: any;
-  notConfigured?: boolean;
+    isDuplicate: boolean;
+    error: any;
+    notConfigured?: boolean;
 }
 
 /**
@@ -39,7 +39,7 @@ export const saveReceipt = async (receiptData: ReceiptData): Promise<SaveResult>
     if (!supabase) {
         return { isDuplicate: false, error: 'Supabase not configured.', notConfigured: true };
     }
-    
+
     const unique_hash = createReceiptHash(receiptData);
 
     const { data, error } = await supabase
@@ -49,6 +49,9 @@ export const saveReceipt = async (receiptData: ReceiptData): Promise<SaveResult>
             date: receiptData.date,
             total: receiptData.total,
             items: receiptData.items,
+            notes: receiptData.notes || null,
+            image_url: receiptData.imageUrl || null,
+            drive_file_id: receiptData.driveFileId || null,
             unique_hash: unique_hash,
         })
         .select();
@@ -75,7 +78,7 @@ export const getReceipts = async (): Promise<ReceiptData[]> => {
 
     const { data, error } = await supabase
         .from('receipts')
-        .select('id, merchant_name, date, total, items')
+        .select('id, merchant_name, date, total, items, notes, image_url, drive_file_id')
         .order('date', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -88,7 +91,10 @@ export const getReceipts = async (): Promise<ReceiptData[]> => {
         merchantName: item.merchant_name,
         date: item.date,
         total: item.total,
-        items: item.items
+        items: item.items,
+        notes: item.notes || undefined,
+        imageUrl: item.image_url || undefined,
+        driveFileId: item.drive_file_id || undefined
     })) as ReceiptData[];
 };
 

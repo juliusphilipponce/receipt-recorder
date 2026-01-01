@@ -10,6 +10,9 @@ export interface ReceiptData {
   date: string;
   total: number;
   items: ReceiptItem[];
+  notes?: string;           // User-added notes/description
+  imageUrl?: string;        // Google Drive link to receipt image
+  driveFileId?: string;     // Google Drive file ID for reference
 }
 
 export type ProcessingStatus = 'pending' | 'analyzing' | 'saving' | 'saved' | 'duplicate' | 'error' | 'not_configured';
