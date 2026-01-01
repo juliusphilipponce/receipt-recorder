@@ -31,10 +31,35 @@ class GoogleSheetsService {
     private spreadsheetId: string | null = null;
 
     /**
-     * Get spreadsheet ID from localStorage or create new spreadsheet
+     * Get spreadsheet ID from env variable, localStorage, or create new spreadsheet
      */
     private async ensureSpreadsheet(accessToken: string): Promise<string> {
-        // Check localStorage for existing spreadsheet ID
+        // Priority 1: Check environment variable (allows using same sheet across localhost and production)
+        const envSheetId = import.meta.env.VITE_GOOGLE_SHEETS_ID;
+
+        if (envSheetId) {
+            // Verify the spreadsheet exists and is accessible
+            try {
+                const response = await fetch(
+                    `${SHEETS_API_BASE}/${envSheetId}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    this.spreadsheetId = envSheetId;
+                    console.log(`📊 Using spreadsheet from env: ${envSheetId}`);
+                    return envSheetId;
+                }
+            } catch (error) {
+                console.warn('Env spreadsheet not accessible, checking localStorage');
+            }
+        }
+
+        // Priority 2: Check localStorage for existing spreadsheet ID
         const storedId = localStorage.getItem('googleSheetsId');
 
         if (storedId) {
@@ -60,7 +85,7 @@ class GoogleSheetsService {
             }
         }
 
-        // Create new spreadsheet
+        // Priority 3: Create new spreadsheet
         const createResponse = await fetch(SHEETS_API_BASE, {
             method: 'POST',
             headers: {

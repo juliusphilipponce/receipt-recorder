@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
       'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.SUPABASE_ANON_KEY),
       'process.env.ALLOWED_EMAIL': JSON.stringify(env.ALLOWED_EMAIL),
       'import.meta.env.VITE_GOOGLE_CLIENT_ID': JSON.stringify(env.VITE_GOOGLE_CLIENT_ID),
+      'import.meta.env.VITE_GOOGLE_SHEETS_ID': JSON.stringify(env.VITE_GOOGLE_SHEETS_ID),
     },
     resolve: {
       alias: {
