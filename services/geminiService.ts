@@ -100,7 +100,7 @@ Ensure the output is in the specified JSON format. If a value is not clear, make
       : ["merchantName", "total", "items"];
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.1-flash-lite-preview",
       contents: { parts: [imagePart, textPart] },
       config: {
         responseMimeType: "application/json",
@@ -116,9 +116,9 @@ Ensure the output is in the specified JSON format. If a value is not clear, make
     // The model can sometimes wrap the JSON in markdown code blocks (` ```json ... ``` `).
     // This logic strips those fences to prevent JSON parsing errors.
     if (jsonText.startsWith("```json")) {
-        jsonText = jsonText.slice(7, -3).trim();
+      jsonText = jsonText.slice(7, -3).trim();
     } else if (jsonText.startsWith("```")) {
-        jsonText = jsonText.slice(3, -3).trim();
+      jsonText = jsonText.slice(3, -3).trim();
     }
 
     const parsedData = JSON.parse(jsonText);
@@ -142,7 +142,7 @@ Ensure the output is in the specified JSON format. If a value is not clear, make
   } catch (error) {
     console.error("Error analyzing receipt with Gemini:", error);
     if (error instanceof Error) {
-        throw new Error(`Failed to analyze receipt: ${error.message}`);
+      throw new Error(`Failed to analyze receipt: ${error.message}`);
     }
     throw new Error("An unknown error occurred while analyzing the receipt.");
   }

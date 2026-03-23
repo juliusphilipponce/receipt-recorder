@@ -441,7 +441,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="w-full text-center text-gray-600 mt-auto pt-8">
-        <p>© 2025 JPPonce</p>
+        <p>© 2026 JPPonce</p>
       </footer>
     </div>
   );
