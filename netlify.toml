@@ -6,6 +6,9 @@
   # Directory to publish (Vite outputs to 'dist' by default)
   publish = "dist"
 
+[dev]
+  targetPort = 3000
+
 # Environment variables for build
 # Note: Set these in Netlify UI under Site settings > Environment variables
 # DO NOT commit actual values here!

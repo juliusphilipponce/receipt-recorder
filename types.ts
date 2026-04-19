@@ -15,7 +15,7 @@ export interface ReceiptData {
   driveFileId?: string;     // Google Drive file ID for reference
 }
 
-export type ProcessingStatus = 'pending' | 'analyzing' | 'saving' | 'saved' | 'duplicate' | 'error' | 'not_configured';
+export type ProcessingStatus = 'pending' | 'analyzing' | 'needs_review' | 'saving' | 'saved' | 'duplicate' | 'error' | 'not_configured';
 
 export interface ProcessResult {
   file: File;

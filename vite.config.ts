@@ -16,8 +16,6 @@ export default defineConfig(({ mode }) => {
     define: {
       // Inject environment variables at build time
       // These will be replaced with actual values during the build process
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.SUPABASE_URL': JSON.stringify(env.SUPABASE_URL),
       'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.SUPABASE_ANON_KEY),
       'process.env.ALLOWED_EMAIL': JSON.stringify(env.ALLOWED_EMAIL),

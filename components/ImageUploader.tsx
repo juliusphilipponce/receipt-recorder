@@ -19,7 +19,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect, onClear, i
       
       let filesToProcess = fileArray.length;
 
-      fileArray.forEach(file => {
+      fileArray.forEach((file: File) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           newPreviews.push(reader.result as string);

@@ -7,6 +7,7 @@ const StatusBadge: React.FC<{ status: ProcessingStatus }> = ({ status }) => {
     const statusStyles: Record<ProcessingStatus, string> = {
         pending: 'bg-gray-600 text-gray-200',
         analyzing: 'bg-blue-600 text-blue-100 animate-pulse',
+        needs_review: 'bg-purple-600 text-purple-100',
         saving: 'bg-indigo-600 text-indigo-100 animate-pulse',
         saved: 'bg-green-600 text-green-100',
         duplicate: 'bg-yellow-600 text-yellow-100',
@@ -16,6 +17,7 @@ const StatusBadge: React.FC<{ status: ProcessingStatus }> = ({ status }) => {
     const statusText: Record<ProcessingStatus, string> = {
         pending: 'Pending',
         analyzing: 'Analyzing...',
+        needs_review: 'Needs Review',
         saving: 'Saving...',
         saved: 'Saved',
         duplicate: 'Duplicate',
@@ -30,8 +32,7 @@ const StatusBadge: React.FC<{ status: ProcessingStatus }> = ({ status }) => {
     );
 };
 
-
-const ResultItem: React.FC<{ result: ProcessResult }> = ({ result }) => {
+const ResultItem: React.FC<{ result: ProcessResult, index: number, onReview: (idx: number) => void }> = ({ result, index, onReview }) => {
     const { file, status, data, error } = result;
 
     return (
@@ -52,18 +53,28 @@ const ResultItem: React.FC<{ result: ProcessResult }> = ({ result }) => {
                 )}
                 {error && <p className="text-xs text-red-400 mt-2"><strong>Error:</strong> {error}</p>}
                 {status === 'not_configured' && <p className="text-xs text-sky-400 mt-2">Supabase not configured. Receipt was analyzed but not saved.</p>}
+                
+                {status === 'needs_review' && (
+                    <div className="mt-3 flex justify-end">
+                        <button 
+                            onClick={() => onReview(index)}
+                            className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-1 px-4 rounded text-sm transition-colors shadow-sm"
+                        >
+                            Review & Save
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
-
-const ResultsList: React.FC<{ results: ProcessResult[] }> = ({ results }) => {
+const ResultsList: React.FC<{ results: ProcessResult[], onReviewItem: (index: number) => void }> = ({ results, onReviewItem }) => {
     return (
         <div className="w-full max-w-4xl space-y-3 sm:space-y-4 animate-fade-in">
-             <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 sm:mb-4">Processing Results</h2>
+             <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 sm:mb-4">Review Queue</h2>
             {results.map((result, index) => (
-                <ResultItem key={`${result.file.name}-${index}`} result={result} />
+                <ResultItem key={`${result.file.name}-${index}`} result={result} index={index} onReview={onReviewItem} />
             ))}
         </div>
     );
