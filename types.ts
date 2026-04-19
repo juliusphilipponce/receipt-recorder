@@ -22,4 +22,5 @@ export interface ProcessResult {
   status: ProcessingStatus;
   data?: ReceiptData;
   error?: string;
+  logs?: string[];
 }

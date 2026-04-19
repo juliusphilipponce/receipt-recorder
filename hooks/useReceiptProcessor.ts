@@ -23,13 +23,24 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
       const filtered = newFiles.filter(file => 
         !currentFiles.some(existingFile => existingFile.name === file.name && existingFile.size === file.size)
       );
-      const updatedFiles = [...currentFiles, ...filtered];
-      // Sync results array length
-      setResults(prev => [
+      if (filtered.length === 0) return currentFiles;
+      return [...currentFiles, ...filtered];
+    });
+
+    setResults(prev => {
+      const filtered = newFiles.filter(file => 
+        !prev.some(existingResult => existingResult.file.name === file.name && existingResult.file.size === file.size)
+      );
+      if (filtered.length === 0) return prev;
+      
+      return [
         ...prev,
-        ...filtered.map(f => ({ file: f, status: 'pending' as ProcessResult['status'] }))
-      ]);
-      return updatedFiles;
+        ...filtered.map(f => ({ 
+          file: f, 
+          status: 'pending' as ProcessResult['status'],
+          logs: ['File added to queue. Pending analysis.']
+        }))
+      ];
     });
   }, []);
 
@@ -56,7 +67,11 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
         const file = imageFiles[index];
         setResults(current => {
           const newResults = [...current];
-          newResults[index] = { ...newResults[index], status: 'analyzing' };
+          newResults[index] = { 
+            ...newResults[index], 
+            status: 'analyzing',
+            logs: [...(newResults[index].logs || []), 'Starting asynchronous analysis...']
+          };
           return newResults;
         });
 
@@ -65,15 +80,24 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
           const data = await analyzeReceipt(file, useTodayDate);
           setResults(current => {
             const newResults = [...current];
-            // Change status to needs_review instead of stopping the world
-            newResults[index] = { ...newResults[index], status: 'needs_review', data };
+            newResults[index] = { 
+              ...newResults[index], 
+              status: 'needs_review', 
+              data,
+              logs: [...(newResults[index].logs || []), 'Analysis complete. Waiting for your review.']
+            };
             return newResults;
           });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
           setResults(current => {
             const newResults = [...current];
-            newResults[index] = { ...newResults[index], status: 'error', error: errorMessage };
+            newResults[index] = { 
+              ...newResults[index], 
+              status: 'error', 
+              error: errorMessage,
+              logs: [...(newResults[index].logs || []), `Analysis failed: ${errorMessage}`]
+            };
             return newResults;
           });
         }
@@ -109,16 +133,17 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
     setIsSaving(true);
     const index = needsReviewIndex;
 
-    const updateResultStatus = (status: ProcessResult['status'], data?: ProcessResult['data'], error?: string) => {
+    const updateResultStatus = (status: ProcessResult['status'], data?: ProcessResult['data'], error?: string, appendLog?: string) => {
       setResults(curr => {
         const newer = [...curr];
-        newer[index] = { ...newer[index], status, data, error };
+        const newLogs = appendLog ? [...(newer[index].logs || []), appendLog] : newer[index].logs;
+        newer[index] = { ...newer[index], status, data, error, logs: newLogs };
         return newer;
       });
     };
 
     try {
-      updateResultStatus('saving', editedData);
+      updateResultStatus('saving', editedData, undefined, 'Saving receipt data...');
 
       let driveFileId: string | undefined;
       let imageUrl: string | undefined;
@@ -132,16 +157,20 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
           );
           driveFileId = uploadResult.fileId;
           imageUrl = uploadResult.webViewLink;
+          updateResultStatus('saving', editedData, undefined, 'Uploaded image to Google Drive.');
         } catch (error) {
           console.warn('Google Drive upload failed', error);
+          updateResultStatus('saving', editedData, undefined, `Google Drive upload failed: ${(error as Error).message}`);
         }
       }
 
       if (googleAuthInitialized) {
         try {
           await googleSheetsService.addReceipt(editedData, imageUrl);
+          updateResultStatus('saving', editedData, undefined, 'Logged data to Google Sheets.');
         } catch (error) {
           console.warn('Google Sheets logging failed', error);
+          updateResultStatus('saving', editedData, undefined, `Google Sheets logging failed: ${(error as Error).message}`);
         }
       }
 
@@ -149,19 +178,19 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
       const { isDuplicate, error: saveError, notConfigured } = await saveReceipt(dataWithGoogleInfo);
 
       if (notConfigured) {
-        updateResultStatus('not_configured', dataWithGoogleInfo);
+        updateResultStatus('not_configured', dataWithGoogleInfo, undefined, 'Supabase not configured. Save skipped.');
       } else if (isDuplicate) {
-        updateResultStatus('duplicate', dataWithGoogleInfo);
+        updateResultStatus('duplicate', dataWithGoogleInfo, undefined, 'Duplicate receipt detected.');
       } else if (saveError) {
-        updateResultStatus('error', dataWithGoogleInfo, 'Failed to save to database.');
+        updateResultStatus('error', dataWithGoogleInfo, 'Failed to save to database.', 'Database save failed.');
       } else {
-        updateResultStatus('saved', dataWithGoogleInfo);
+        updateResultStatus('saved', dataWithGoogleInfo, undefined, 'Successfully saved to database.');
         if (onSaveSuccess) onSaveSuccess();
       }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
-      updateResultStatus('error', editedData, errorMessage);
+      updateResultStatus('error', editedData, errorMessage, `Error during save: ${errorMessage}`);
     } finally {
       setIsSaving(false);
       closeReviewModal();
@@ -173,7 +202,12 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
       const index = needsReviewIndex;
       setResults(curr => {
         const newer = [...curr];
-        newer[index] = { ...newer[index], status: 'error', error: 'Cancelled by user' };
+        newer[index] = { 
+          ...newer[index], 
+          status: 'needs_review', 
+          error: undefined,
+          logs: [...(newer[index].logs || []), 'Review deferred by user.']
+        };
         return newer;
       });
     }

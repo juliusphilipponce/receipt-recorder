@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [receiptsVersion, setReceiptsVersion] = useState(0); 
   const [useTodayDate, setUseTodayDate] = useState<boolean>(false);
   const [showDateConfirmDialog, setShowDateConfirmDialog] = useState<boolean>(false);
+  const [showClearConfirmDialog, setShowClearConfirmDialog] = useState<boolean>(false);
   const [googleAuthInitialized, setGoogleAuthInitialized] = useState<boolean>(false);
 
   const {
@@ -42,7 +43,6 @@ const App: React.FC = () => {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
           .then(registration => {
-            console.log('Service Worker registered with scope:', registration.scope);
             registration.update();
           })
           .catch(error => console.error('Service Worker registration failed:', error));
@@ -54,14 +54,23 @@ const App: React.FC = () => {
     googleAuthService.initialize()
       .then(() => {
         setGoogleAuthInitialized(true);
-        console.log('✅ Google Auth initialized');
       })
-      .catch((error) => console.warn('⚠️ Google Auth initialization failed:', error));
+      .catch((error) => {});
   }, []);
 
   const handleClear = () => {
+    setShowClearConfirmDialog(true);
+  };
+
+  const handleClearConfirm = () => {
     clearAll();
     setUseTodayDate(false);
+    setShowClearConfirmDialog(false);
+    setReceiptsVersion(v => v + 1);
+  };
+
+  const handleClearCancel = () => {
+    setShowClearConfirmDialog(false);
   };
 
   const getTodayDateFormatted = () => {
@@ -122,15 +131,19 @@ const App: React.FC = () => {
     );
   }
 
+  const pendingCount = results.filter(r => r.status === 'pending').length;
   const showResults = results.length > 0;
 
   const renderScannerTab = () => (
     <>
-      {!showResults && (
-        <ImageUploader onImageSelect={addFiles} onClear={handleClear} isProcessing={isProcessing} />
-      )}
+      <ImageUploader 
+        onImageSelect={addFiles} 
+        onClear={handleClear} 
+        resultsCount={results.length}
+        isProcessing={isProcessing} 
+      />
 
-      {imageFiles.length > 0 && !showResults && (
+      {pendingCount > 0 && !isProcessing && (
         <>
           <DateToggle
             isEnabled={useTodayDate}
@@ -143,24 +156,24 @@ const App: React.FC = () => {
               disabled={isProcessing}
               className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
             >
-              {`Analyze ${imageFiles.length} Receipt${imageFiles.length > 1 ? 's' : ''}`}
+              {`Analyze ${pendingCount} Pending Receipt${pendingCount > 1 ? 's' : ''}`}
             </button>
           </div>
         </>
       )}
 
-      {isProcessing && <Spinner text={`Processing receipts in parallel...`} />}
+      {isProcessing && pendingCount === 0 && <Spinner text={`Processing receipts...`} />}
 
       {showResults && (
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl mt-6">
           <ResultsList results={results} onReviewItem={openReviewModal} />
-          {!isProcessing && (
+          {!isProcessing && pendingCount === 0 && (
             <div className="text-center mt-4 sm:mt-6 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full">
               <button
                 onClick={handleClear}
                 className="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 sm:px-8 rounded-lg transition-transform transform hover:scale-105 duration-300 text-sm sm:text-base min-h-[44px]"
               >
-                Scan More
+                Clear All
               </button>
               <button
                 onClick={() => setActiveTab('myreceipts')}
@@ -181,6 +194,17 @@ const App: React.FC = () => {
         cancelLabel="Cancel"
         onConfirm={handleDateConfirmDialogConfirm}
         onCancel={handleDateConfirmDialogCancel}
+      />
+
+      <ConfirmDialog
+        isOpen={showClearConfirmDialog}
+        title="Clear All Results"
+        message="Are you sure you want to clear all receipt results? This action cannot be undone."
+        confirmLabel="Clear All"
+        cancelLabel="Cancel"
+        onConfirm={handleClearConfirm}
+        onCancel={handleClearCancel}
+        isDanger={true}
       />
 
       <ReceiptConfirmationModal

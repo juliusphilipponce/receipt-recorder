@@ -1,12 +1,13 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 
 interface ImageUploaderProps {
   onImageSelect: (files: File[]) => void;
   onClear: () => void;
+  resultsCount: number;
   isProcessing: boolean;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect, onClear, isProcessing }) => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect, onClear, resultsCount, isProcessing }) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const captureInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -39,14 +40,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect, onClear, i
   }, [onImageSelect]);
   
   const handleClear = useCallback(() => {
-      setImagePreviews([]);
       onClear();
-      if(captureInputRef.current) {
-          captureInputRef.current.value = "";
-      }
-      if(galleryInputRef.current) {
-        galleryInputRef.current.value = "";
-    }
   }, [onClear]);
 
   const triggerCaptureInput = () => {
@@ -56,7 +50,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect, onClear, i
   const triggerGalleryInput = () => {
     galleryInputRef.current?.click();
   };
-
+  // Sync local previews with global results state
+  // If results are cleared globally (count === 0), clear local previews
+  useEffect(() => {
+    // We check if we actually have previews to clear to avoid unnecessary re-renders
+    if (resultsCount === 0 && imagePreviews.length > 0) {
+      setImagePreviews([]);
+      if(captureInputRef.current) captureInputRef.current.value = "";
+      if(galleryInputRef.current) galleryInputRef.current.value = "";
+    }
+  }, [resultsCount, imagePreviews.length]);
+  
   return (
     <div className="w-full max-w-4xl">
       <div className="bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6 text-center">

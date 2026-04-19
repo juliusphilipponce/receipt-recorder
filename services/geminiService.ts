@@ -33,13 +33,26 @@ export const analyzeReceipt = async (imageFile: File, useTodayDate: boolean = fa
       }),
     });
 
+    const responseBody = await response.text();
+    
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      let errorMsg = `HTTP error! status: ${response.status}`;
+      try {
+        const errorData = JSON.parse(responseBody);
+        errorMsg = errorData.error || errorMsg;
+      } catch (e) {
+        errorMsg = responseBody || errorMsg;
+      }
+      throw new Error(errorMsg);
     }
 
-    const parsedData = await response.json();
-    return parsedData as ReceiptData;
+    try {
+      const parsedData = JSON.parse(responseBody);
+      return parsedData as ReceiptData;
+    } catch (parseError) {
+      console.error("Failed to parse response as JSON:", responseBody);
+      throw new Error(`Invalid JSON response from server: ${responseBody.substring(0, 100)}...`);
+    }
 
   } catch (error) {
     console.error("Error analyzing receipt via serverless function:", error);

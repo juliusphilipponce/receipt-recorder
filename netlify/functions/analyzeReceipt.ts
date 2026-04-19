@@ -7,11 +7,16 @@ export const handler: Handler = async (event, context) => {
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return { statusCode: 500, body: JSON.stringify({ error: 'GEMINI_API_KEY is not configured on the server.' }) };
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     const { imagePart, useTodayDate } = JSON.parse(event.body || '{}');
 
     if (!imagePart || !imagePart.inlineData) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Missing imagePart data' }) };
+      return { statusCode: 400, body: JSON.stringify({ error: 'Missing imagePart data' }) };
     }
 
     const shouldExtractDate = !useTodayDate;
@@ -86,16 +91,21 @@ Ensure the output is in the specified JSON format. If a value is not clear, make
 
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-lite-preview",
-      contents: { parts: [imagePart, textPart] },
+      contents: [{ role: "user", parts: [imagePart, textPart] }],
       config: {
         responseMimeType: "application/json",
-        responseSchema: {
+        responseJsonSchema: {
           type: Type.OBJECT,
           properties: schemaProperties,
           required: requiredFields
         },
       },
     });
+
+    if (!response || !response.text) {
+      console.error("Gemini Response Error:", JSON.stringify(response, null, 2));
+      throw new Error("No response or empty text received from Gemini.");
+    }
 
     let jsonText = response.text.trim();
     if (jsonText.startsWith("```json")) {

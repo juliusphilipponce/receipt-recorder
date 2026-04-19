@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
   isLoading?: boolean;
+  isDanger?: boolean;
 }
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -20,6 +21,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   onCancel,
   isLoading = false,
+  isDanger = false,
 }) => {
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -66,10 +68,10 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Icon */}
-        <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mx-auto bg-yellow-500/20 rounded-full mb-3 sm:mb-4">
+        <div className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 mx-auto ${isDanger ? 'bg-red-500/20' : 'bg-yellow-500/20'} rounded-full mb-3 sm:mb-4`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-500"
+            className={`h-5 w-5 sm:h-6 sm:w-6 ${isDanger ? 'text-red-500' : 'text-yellow-500'}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -114,7 +116,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             ref={confirmButtonRef}
             onClick={onConfirm}
             disabled={isLoading}
-            className="w-full sm:w-auto px-4 py-2 bg-[#0ea5e9] text-white rounded-lg hover:bg-[#0284c7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:ring-offset-2 focus:ring-offset-gray-800 min-w-[100px] text-sm sm:text-base min-h-[44px]"
+            className={`w-full sm:w-auto px-4 py-2 ${
+              isDanger 
+                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' 
+                : 'bg-[#0ea5e9] hover:bg-[#0284c7] focus:ring-[#0ea5e9]'
+            } text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 min-w-[100px] text-sm sm:text-base min-h-[44px]`}
             aria-label={confirmLabel}
           >
             {isLoading ? (
