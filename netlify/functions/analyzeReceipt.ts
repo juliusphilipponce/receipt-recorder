@@ -90,7 +90,7 @@ Ensure the output is in the specified JSON format. If a value is not clear, make
       : ["merchantName", "total", "items"];
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-lite-preview",
+      model: "gemini-3.1-flash-lite",
       contents: [{ role: "user", parts: [imagePart, textPart] }],
       config: {
         responseMimeType: "application/json",
