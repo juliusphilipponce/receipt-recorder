@@ -18,7 +18,7 @@ const fileToGenerativePart = async (file: File) => {
   };
 };
 
-export const analyzeReceipt = async (imageFile: File, useTodayDate: boolean = false): Promise<ReceiptData> => {
+export const analyzeReceipt = async (imageFile: File, useTodayDate: boolean = false): Promise<ReceiptData[]> => {
   try {
     const imagePart = await fileToGenerativePart(imageFile);
 
@@ -48,7 +48,7 @@ export const analyzeReceipt = async (imageFile: File, useTodayDate: boolean = fa
 
     try {
       const parsedData = JSON.parse(responseBody);
-      return parsedData as ReceiptData;
+      return parsedData as ReceiptData[];
     } catch (parseError) {
       console.error("Failed to parse response as JSON:", responseBody);
       throw new Error(`Invalid JSON response from server: ${responseBody.substring(0, 100)}...`);

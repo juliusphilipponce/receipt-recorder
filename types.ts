@@ -18,6 +18,7 @@ export interface ReceiptData {
 export type ProcessingStatus = 'pending' | 'analyzing' | 'needs_review' | 'saving' | 'saved' | 'duplicate' | 'error' | 'not_configured';
 
 export interface ProcessResult {
+  id: string;
   file: File;
   status: ProcessingStatus;
   data?: ReceiptData;

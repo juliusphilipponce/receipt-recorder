@@ -23,7 +23,6 @@ const App: React.FC = () => {
   const [googleAuthInitialized, setGoogleAuthInitialized] = useState<boolean>(false);
 
   const {
-    imageFiles,
     results,
     isProcessing,
     isSaving,
@@ -79,7 +78,7 @@ const App: React.FC = () => {
   };
 
   const handleAnalyzeClick = () => {
-    if (imageFiles.length === 0) return;
+    if (results.length === 0) return;
     if (useTodayDate) {
       setShowDateConfirmDialog(true);
     } else {

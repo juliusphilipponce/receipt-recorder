@@ -6,12 +6,11 @@ import { googleSheetsService } from '../services/googleSheetsService';
 import { saveReceipt } from '../services/receiptService';
 
 export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [results, setResults] = useState<ProcessResult[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // Parallel track items that need manual review:
-  const [needsReviewIndex, setNeedsReviewIndex] = useState<number | null>(null);
+  // Track item that needs manual review by its ID:
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [pendingReceiptData, setPendingReceiptData] = useState<ReceiptData | null>(null);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
   const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(null);
@@ -19,14 +18,6 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const addFiles = useCallback((newFiles: File[]) => {
-    setImageFiles(currentFiles => {
-      const filtered = newFiles.filter(file => 
-        !currentFiles.some(existingFile => existingFile.name === file.name && existingFile.size === file.size)
-      );
-      if (filtered.length === 0) return currentFiles;
-      return [...currentFiles, ...filtered];
-    });
-
     setResults(prev => {
       const filtered = newFiles.filter(file => 
         !prev.some(existingResult => existingResult.file.name === file.name && existingResult.file.size === file.size)
@@ -36,6 +27,7 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
       return [
         ...prev,
         ...filtered.map(f => ({ 
+          id: `${f.name}-${f.size}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           file: f, 
           status: 'pending' as ProcessResult['status'],
           logs: ['File added to queue. Pending analysis.']
@@ -45,78 +37,102 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
   }, []);
 
   const clearAll = useCallback(() => {
-    setImageFiles([]);
     setResults([]);
     setIsProcessing(false);
-    setNeedsReviewIndex(null);
+    setReviewingId(null);
     setPendingReceiptData(null);
     setPendingImageFile(null);
     setPendingImagePreview(null);
   }, []);
 
   const analyzeAll = useCallback(async (useTodayDate: boolean) => {
-    if (imageFiles.length === 0) return;
+    const pendingItems = results.filter(r => r.status === 'pending' || r.status === 'error');
+    if (pendingItems.length === 0) return;
     setIsProcessing(true);
 
-    const pendingIndices = results
-      .map((r, i) => (r.status === 'pending' || r.status === 'error' ? i : -1))
-      .filter(i => i !== -1);
-
     await Promise.allSettled(
-      pendingIndices.map(async (index) => {
-        const file = imageFiles[index];
-        setResults(current => {
-          const newResults = [...current];
-          newResults[index] = { 
-            ...newResults[index], 
-            status: 'analyzing',
-            logs: [...(newResults[index].logs || []), 'Starting asynchronous analysis...']
-          };
-          return newResults;
-        });
+      pendingItems.map(async (item) => {
+        const { id, file } = item;
+        
+        setResults(current => 
+          current.map(r => r.id === id 
+            ? { ...r, status: 'analyzing', logs: [...(r.logs || []), 'Starting asynchronous analysis...'] }
+            : r
+          )
+        );
 
         try {
           // Send to Netlify backend
-          const data = await analyzeReceipt(file, useTodayDate);
+          const receipts = await analyzeReceipt(file, useTodayDate);
+          
           setResults(current => {
-            const newResults = [...current];
-            newResults[index] = { 
-              ...newResults[index], 
-              status: 'needs_review', 
-              data,
-              logs: [...(newResults[index].logs || []), 'Analysis complete. Waiting for your review.']
-            };
-            return newResults;
+            const index = current.findIndex(r => r.id === id);
+            if (index === -1) return current;
+            
+            const targetResult = current[index];
+            
+            if (receipts.length === 0) {
+              const newResults = [...current];
+              newResults[index] = {
+                ...targetResult,
+                status: 'error',
+                error: 'No receipts detected in the image.',
+                logs: [...(targetResult.logs || []), 'Analysis complete. No receipts detected.']
+              };
+              return newResults;
+            } else if (receipts.length === 1) {
+              const newResults = [...current];
+              newResults[index] = {
+                ...targetResult,
+                status: 'needs_review',
+                data: receipts[0],
+                logs: [...(targetResult.logs || []), 'Analysis complete. Waiting for your review.']
+              };
+              return newResults;
+            } else {
+              // Multiple receipts detected! Splitting them into separate entries.
+              const splitResults: ProcessResult[] = receipts.map((receipt, subIdx) => ({
+                id: `${id}-${subIdx}`,
+                file: targetResult.file,
+                status: 'needs_review',
+                data: receipt,
+                logs: [...(targetResult.logs || []), `Split receipt ${subIdx + 1} of ${receipts.length} detected.`]
+              }));
+              
+              const newResults = [...current];
+              newResults.splice(index, 1, ...splitResults);
+              return newResults;
+            }
           });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
-          setResults(current => {
-            const newResults = [...current];
-            newResults[index] = { 
-              ...newResults[index], 
-              status: 'error', 
-              error: errorMessage,
-              logs: [...(newResults[index].logs || []), `Analysis failed: ${errorMessage}`]
-            };
-            return newResults;
-          });
+          setResults(current => 
+            current.map(r => r.id === id 
+              ? { 
+                  ...r, 
+                  status: 'error', 
+                  error: errorMessage, 
+                  logs: [...(r.logs || []), `Analysis failed: ${errorMessage}`] 
+                }
+              : r
+            )
+          );
         }
       })
     );
     setIsProcessing(false);
-  }, [imageFiles, results]);
+  }, [results]);
 
-  const openReviewModal = useCallback((index: number) => {
-    const file = imageFiles[index];
-    const data = results[index].data;
-    if (!file || !data) return;
+  const openReviewModal = useCallback((id: string) => {
+    const item = results.find(r => r.id === id);
+    if (!item || !item.data) return;
 
-    setPendingReceiptData(data);
-    setPendingImageFile(file);
-    const previewUrl = URL.createObjectURL(file);
+    setPendingReceiptData(item.data);
+    setPendingImageFile(item.file);
+    const previewUrl = URL.createObjectURL(item.file);
     setPendingImagePreview(previewUrl);
-    setNeedsReviewIndex(index);
-  }, [imageFiles, results]);
+    setReviewingId(id);
+  }, [results]);
 
   const closeReviewModal = useCallback(() => {
     setPendingReceiptData(null);
@@ -125,21 +141,27 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
       URL.revokeObjectURL(pendingImagePreview);
     }
     setPendingImagePreview(null);
-    setNeedsReviewIndex(null);
+    setReviewingId(null);
   }, [pendingImagePreview]);
 
   const confirmReceiptSave = async (editedData: ReceiptData, onSaveSuccess?: () => void) => {
-    if (needsReviewIndex === null) return;
+    if (reviewingId === null) return;
     setIsSaving(true);
-    const index = needsReviewIndex;
+    const id = reviewingId;
 
     const updateResultStatus = (status: ProcessResult['status'], data?: ProcessResult['data'], error?: string, appendLog?: string) => {
-      setResults(curr => {
-        const newer = [...curr];
-        const newLogs = appendLog ? [...(newer[index].logs || []), appendLog] : newer[index].logs;
-        newer[index] = { ...newer[index], status, data, error, logs: newLogs };
-        return newer;
-      });
+      setResults(curr => 
+        curr.map(r => r.id === id 
+          ? { 
+              ...r, 
+              status, 
+              data, 
+              error, 
+              logs: appendLog ? [...(r.logs || []), appendLog] : r.logs 
+            }
+          : r
+        )
+      );
     };
 
     try {
@@ -198,24 +220,24 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
   };
 
   const cancelReceiptReview = () => {
-    if (needsReviewIndex !== null) {
-      const index = needsReviewIndex;
-      setResults(curr => {
-        const newer = [...curr];
-        newer[index] = { 
-          ...newer[index], 
-          status: 'needs_review', 
-          error: undefined,
-          logs: [...(newer[index].logs || []), 'Review deferred by user.']
-        };
-        return newer;
-      });
+    if (reviewingId !== null) {
+      const id = reviewingId;
+      setResults(curr => 
+        curr.map(r => r.id === id 
+          ? { 
+              ...r, 
+              status: 'needs_review', 
+              error: undefined,
+              logs: [...(r.logs || []), 'Review deferred by user.']
+            }
+          : r
+        )
+      );
     }
     closeReviewModal();
   };
 
   return {
-    imageFiles,
     results,
     isProcessing,
     isSaving,
@@ -227,7 +249,7 @@ export const useReceiptProcessor = (googleAuthInitialized: boolean) => {
     cancelReceiptReview,
     
     // Modal states
-    isReviewModalOpen: needsReviewIndex !== null,
+    isReviewModalOpen: reviewingId !== null,
     pendingReceiptData,
     pendingImagePreview
   };

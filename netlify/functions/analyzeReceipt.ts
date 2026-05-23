@@ -22,7 +22,7 @@ export const handler: Handler = async (event, context) => {
     const shouldExtractDate = !useTodayDate;
 
     const textPart = {
-      text: `Analyze the provided receipt image. Extract the merchant name, ${shouldExtractDate ? 'transaction date,' : ''} total amount, and a list of all items with their corresponding prices.
+      text: `Analyze the provided image. The image may contain one or multiple receipts (captured together or side-by-side). Identify and analyze each distinct receipt in the image. For each receipt, extract the merchant name, ${shouldExtractDate ? 'transaction date,' : ''} total amount, and a list of all items with their corresponding prices.
 
 ${shouldExtractDate ? `
 CRITICAL DATE EXTRACTION RULES - READ CAREFULLY:
@@ -46,48 +46,57 @@ Additional rules:
 - The date should never be in the future - if your interpretation results in a future date, reconsider the format
 - If you see a date that could be valid in both formats, choose DD/MM/YYYY
 ` : ''}
-Ensure the output is in the specified JSON format. If a value is not clear, make a reasonable guess or leave it as an empty string or 0 for numbers.`
+Ensure the output is in the specified JSON format containing an array of receipts. If a value is not clear, make a reasonable guess or leave it as an empty string or 0 for numbers.`
     };
 
     const schemaProperties: any = {
-      merchantName: {
-        type: Type.STRING,
-        description: "The name of the store or merchant."
-      },
-      total: {
-        type: Type.NUMBER,
-        description: "The final total amount paid."
-      },
-      items: {
+      receipts: {
         type: Type.ARRAY,
-        description: "A list of items purchased.",
+        description: "A list of all detected receipts in the image. Even if there is only one receipt, it must be returned in this array.",
         items: {
           type: Type.OBJECT,
           properties: {
-            name: {
+            merchantName: {
               type: Type.STRING,
-              description: "The name of the item."
+              description: "The name of the store or merchant."
             },
-            price: {
+            total: {
               type: Type.NUMBER,
-              description: "The price of the item."
-            }
+              description: "The final total amount paid."
+            },
+            items: {
+              type: Type.ARRAY,
+              description: "A list of items purchased.",
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: {
+                    type: Type.STRING,
+                    description: "The name of the item."
+                  },
+                  price: {
+                    type: Type.NUMBER,
+                    description: "The price of the item."
+                  }
+                },
+                required: ["name", "price"]
+              }
+            },
+            ...(shouldExtractDate ? {
+              date: {
+                type: Type.STRING,
+                description: "The date of the transaction in YYYY-MM-DD format. Receipt dates are typically in DD/MM/YYYY format (e.g., 05/11/2025 = November 5, 2025)."
+              }
+            } : {})
           },
-          required: ["name", "price"]
+          required: shouldExtractDate
+            ? ["merchantName", "date", "total", "items"]
+            : ["merchantName", "total", "items"]
         }
       }
     };
 
-    if (shouldExtractDate) {
-      schemaProperties.date = {
-        type: Type.STRING,
-        description: "The date of the transaction in YYYY-MM-DD format. Receipt dates are typically in DD/MM/YYYY format (e.g., 05/11/2025 = November 5, 2025)."
-      };
-    }
-
-    const requiredFields = shouldExtractDate
-      ? ["merchantName", "date", "total", "items"]
-      : ["merchantName", "total", "items"];
+    const requiredFields = ["receipts"];
 
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-lite",
@@ -116,16 +125,19 @@ Ensure the output is in the specified JSON format. If a value is not clear, make
 
     const parsedData = JSON.parse(jsonText);
 
+    if (!parsedData.receipts || !Array.isArray(parsedData.receipts)) {
+      throw new Error("Failed to parse receipt data correctly. No receipts array returned.");
+    }
+
     if (useTodayDate) {
       const today = new Date();
       const year = today.getFullYear();
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
-      parsedData.date = `${year}-${month}-${day}`;
-    }
-
-    if (!parsedData.merchantName || !parsedData.items) {
-      throw new Error("Failed to parse receipt data correctly.");
+      const formattedToday = `${year}-${month}-${day}`;
+      for (const receipt of parsedData.receipts) {
+        receipt.date = formattedToday;
+      }
     }
 
     return {
@@ -133,7 +145,7 @@ Ensure the output is in the specified JSON format. If a value is not clear, make
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(parsedData)
+      body: JSON.stringify(parsedData.receipts)
     };
 
   } catch (error) {

@@ -32,8 +32,8 @@ const StatusBadge: React.FC<{ status: ProcessingStatus }> = ({ status }) => {
     );
 };
 
-const ResultItem: React.FC<{ result: ProcessResult, index: number, onReview: (idx: number) => void }> = ({ result, index, onReview }) => {
-    const { file, status, data, error, logs } = result;
+const ResultItem: React.FC<{ result: ProcessResult, onReview: (id: string) => void }> = ({ result, onReview }) => {
+    const { id, file, status, data, error, logs } = result;
 
     const progressValue = (() => {
         switch (status) {
@@ -86,7 +86,7 @@ const ResultItem: React.FC<{ result: ProcessResult, index: number, onReview: (id
                     {status === 'needs_review' && (
                         <div className="mt-3 flex justify-end">
                             <button 
-                                onClick={() => onReview(index)}
+                                onClick={() => onReview(id)}
                                 className="bg-[#0ea5e9] hover:bg-sky-500 text-white font-bold py-1 px-4 rounded text-sm transition-colors shadow-sm"
                             >
                                 Review & Save
@@ -99,12 +99,12 @@ const ResultItem: React.FC<{ result: ProcessResult, index: number, onReview: (id
     );
 };
 
-const ResultsList: React.FC<{ results: ProcessResult[], onReviewItem: (index: number) => void }> = ({ results, onReviewItem }) => {
+const ResultsList: React.FC<{ results: ProcessResult[], onReviewItem: (id: string) => void }> = ({ results, onReviewItem }) => {
     return (
         <div className="w-full max-w-4xl space-y-3 sm:space-y-4 animate-fade-in">
              <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 sm:mb-4">Review Queue</h2>
-            {results.map((result, index) => (
-                <ResultItem key={`${result.file.name}-${index}`} result={result} index={index} onReview={onReviewItem} />
+            {results.map((result) => (
+                <ResultItem key={result.id} result={result} onReview={onReviewItem} />
             ))}
         </div>
     );
